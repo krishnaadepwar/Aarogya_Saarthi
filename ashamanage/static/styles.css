@@ -1,0 +1,58 @@
+.asha-card {
+  display: block;
+  height: 100%;
+  padding: 20px;
+  background: #ffffff;
+  border-radius: 18px;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.asha-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 14px 30px rgba(0,0,0,0.12);
+}
+
+.asha-card h5 {
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.asha-card p {
+  font-size: 0.9rem;
+  color: #607D8B;
+  margin-bottom: 0;
+}
+
+.asha-card .icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+  color: #fff;
+  font-size: 1.4rem;
+}
+
+.asha-form-table input,
+.asha-form-table select {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.table th {
+  background: #f8f9fa;
+  font-weight: 600;
+}
+
+@media print {
+  .btn, .actions {
+    display: none !important;
+  }
+}

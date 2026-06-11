@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="mb-5 fade-in-up">
+  <div class="d-flex align-items-center">
+    <div class="bg-primary-subtle text-primary rounded-circle p-3 me-3">
+      <i class="bi bi-alarm-fill fs-4"></i>
+    </div>
+    <div>
+      <h3 class="fw-bold text-primary mb-1">Set Medicine Reminder</h3>
+      <p class="text-muted mb-0">Schedule reminders for patients to ensure timely intake</p>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4 fade-in-up" style="animation-delay: 0.1s;">
+  <div class="col-lg-7 col-md-8">
+
+    <div class="card glass border-0 overflow-hidden mb-4">
+      <div class="card-header bg-gradient-primary text-white p-3 border-0 text-center fw-bold">New Reminder</div>
+      <div class="card-body p-4 bg-white bg-opacity-50">
+
+        <form method="post">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="action" value="create">
+
+          <div class="mb-3">
+            <label class="form-label text-muted small fw-bold text-uppercase">Select Patient</label>
+            <div class="input-group shadow-sm">
+              <span class="input-group-text bg-white border-end-0"><i class="bi bi-person text-primary"></i></span>
+              <select class="form-select border-start-0" name="patient_id" id="patientSelect" required>
+                {% for p in patients %}
+                  <option value="{{ p.id }}" {% if selected_patient_id == p.id %}selected{% endif %}>{{ p.username }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-text text-muted small">Select a patient from the list on the right to view their reminders.</div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label text-muted small fw-bold text-uppercase">Medicine Name</label>
+            <div class="input-group shadow-sm">
+              <span class="input-group-text bg-white border-end-0"><i class="bi bi-capsule text-primary"></i></span>
+              <input class="form-control border-start-0"
+                     name="medicine"
+                     placeholder="e.g. Paracetamol"
+                     required>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label text-muted small fw-bold text-uppercase">Dosage</label>
+            <div class="input-group shadow-sm">
+              <span class="input-group-text bg-white border-end-0"><i class="bi bi-eyedropper text-primary"></i></span>
+              <input class="form-control border-start-0"
+                     name="dosage"
+                     placeholder="e.g. 1 tablet"
+                     required>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label text-muted small fw-bold text-uppercase">Reminder Time</label>
+            <div class="input-group shadow-sm">
+              <span class="input-group-text bg-white border-end-0"><i class="bi bi-clock text-primary"></i></span>
+              <input type="time"
+                     class="form-control border-start-0"
+                     name="time"
+                     required>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label text-muted small fw-bold text-uppercase">Frequency</label>
+            <div class="input-group shadow-sm">
+              <span class="input-group-text bg-white border-end-0"><i class="bi bi-arrow-repeat text-primary"></i></span>
+              <select class="form-select border-start-0" name="frequency" id="frequencySelect">
+                <option>Once a day</option>
+                <option>Twice a day</option>
+                <option>Thrice a day</option>
+              </select>
+            </div>
+            <div class="d-flex gap-2 mt-2">
+              <button type="button" class="btn btn-light border rounded-pill px-3" data-freq="Once a day">Once</button>
+              <button type="button" class="btn btn-light border rounded-pill px-3" data-freq="Twice a day">Twice</button>
+              <button type="button" class="btn btn-light border rounded-pill px-3" data-freq="Thrice a day">Thrice</button>
+            </div>
+          </div>
+
+          <button class="btn btn-primary w-100 py-3 shadow-sm fw-bold rounded-pill">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            Set Reminder
+          </button>
+
+        </form>
+
+      </div>
+    </div>
+
+    {% if selected_patient_id and reminders %}
+    <div class="card glass border-0 overflow-hidden">
+      <div class="card-header bg-white bg-opacity-75 p-3 border-0 fw-bold">
+        <i class="bi bi-list-check text-primary me-2"></i> Current Reminders
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="table-light small text-uppercase">
+              <tr>
+                <th class="ps-4">Medicine</th>
+                <th>Time</th>
+                <th>Status</th>
+                <th>By</th>
+                <th class="text-end pe-4">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for r in reminders %}
+              <tr>
+                <td class="ps-4">
+                  <div class="fw-bold text-dark">{{ r.medicine_name }}</div>
+                  <div class="small text-muted">{{ r.dosage }} • {{ r.frequency }}</div>
+                </td>
+                <td>
+                  <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                    {{ r.reminder_time.strftime('%H:%M') }}
+                  </span>
+                </td>
+                <td>
+                  <span class="badge rounded-pill 
+                    {% if r.status == 'taken' %}bg-success text-white
+                    {% elif r.status == 'missed' %}bg-danger text-white
+                    {% else %}bg-warning text-dark{% endif %}">
+                    {{ r.status|capitalize }}
+                  </span>
+                </td>
+                <td>
+                  <span class="badge rounded-pill bg-light text-dark border">{{ r.created_by|capitalize }}</span>
+                </td>
+                <td class="text-end pe-4">
+                  {% if r.created_by == 'asha' %}
+                  <form method="post" class="d-inline" onsubmit="return confirm('Delete this reminder?');">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="action" value="delete">
+                    <input type="hidden" name="patient_id" value="{{ selected_patient_id }}">
+                    <input type="hidden" name="reminder_id" value="{{ r.id }}">
+                    <button class="btn btn-sm btn-outline-danger border-0"><i class="bi bi-trash"></i></button>
+                  </form>
+                  {% else %}
+                  <span class="text-muted small" title="Cannot delete patient-created reminders"><i class="bi bi-lock-fill"></i></span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    {% elif selected_patient_id %}
+    <div class="alert alert-info border-0 shadow-sm">
+      <i class="bi bi-info-circle-fill me-2"></i> No active reminders for this patient.
+    </div>
+    {% endif %}
+
+  </div>
+
+  <div class="col-lg-5">
+    <div class="card glass border-0 shadow-sm">
+      <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0">
+        <h6 class="fw-bold mb-0 text-dark"><i class="bi bi-people me-2 text-primary"></i> Patients in Your Area</h6>
+      </div>
+      <div class="card-body p-4">
+        <div class="input-group mb-3">
+          <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+          <input id="patientFilter" class="form-control border-start-0 ps-0" placeholder="Search patients...">
+        </div>
+        <div class="list-group list-group-flush" id="patientList">
+          {% for p in patients %}
+          <button type="button" class="list-group-item list-group-item-action d-flex align-items-center gap-3 border-0 border-bottom pick-patient {% if selected_patient_id == p.id %}active{% endif %}" data-id="{{ p.id }}">
+            <div class="bg-gradient-primary text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 40px; height: 40px; font-weight: 700;">
+              {{ p.username[0] | upper }}
+            </div>
+            <div class="flex-grow-1 text-start">
+              <div class="fw-semibold text-dark">{{ p.username }}</div>
+              <div class="small text-muted">Patient</div>
+            </div>
+            <i class="bi bi-check2-circle text-muted"></i>
+          </button>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const filterInput = document.getElementById('patientFilter');
+  const listItems = Array.from(document.querySelectorAll('#patientList .pick-patient'));
+  const patientSelect = document.getElementById('patientSelect');
+  const freqSelect = document.getElementById('frequencySelect');
+  const freqButtons = document.querySelectorAll('[data-freq]');
+
+  filterInput?.addEventListener('input', () => {
+    const q = filterInput.value.trim().toLowerCase();
+    listItems.forEach(el => {
+      const text = el.innerText.toLowerCase();
+      el.style.display = text.includes(q) ? '' : 'none';
+    });
+  });
+
+  listItems.forEach(el => {
+    el.addEventListener('click', () => {
+      const id = el.getAttribute('data-id');
+      if (!id) return;
+      window.location.href = `?patient_id=${id}`;
+    });
+  });
+
+  // Pre-select logic is handled by server-side rendering now, 
+  // but if user changes dropdown manually, we might want to reload or just let them add.
+  // For now, let's keep it simple. If they change dropdown, they are adding for that patient.
+  // But the "Current Reminders" list won't update until they save or reload.
+  // So we should probably listen to dropdown change too.
+  
+  patientSelect?.addEventListener('change', () => {
+    const id = patientSelect.value;
+    if (id) {
+        window.location.href = `?patient_id=${id}`;
+    }
+  });
+
+  freqButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const v = btn.getAttribute('data-freq');
+      if (!v || !freqSelect) return;
+      Array.from(freqSelect.options).forEach(o => {
+        o.selected = (o.textContent === v);
+      });
+      freqButtons.forEach(b => b.classList.remove('btn-primary'));
+      freqButtons.forEach(b => b.classList.add('btn-light'));
+      btn.classList.remove('btn-light');
+      btn.classList.add('btn-primary');
+    });
+  });
+</script>
+
+{% endblock %}

@@ -1,0 +1,105 @@
+{% extends "info_base.html" %}
+{% block title %}{{ category|title }} Videos{% endblock %}
+
+{% block info_content %}
+
+<div class="mb-4 text-center fade-in-up">
+  <h3 class="fw-bold text-primary mb-2">
+    {{ category|title }} Videos
+  </h3>
+  <p class="text-muted mb-0 small">
+    Educational videos for health awareness and prevention
+  </p>
+</div>
+
+<div class="row justify-content-center fade-in-up" style="animation-delay: 0.1s;">
+  <div class="col-md-9">
+
+    {% if videos_db or videos_static %}
+      <div class="row g-4">
+
+        {% for v in videos_db %}
+        <div class="col-md-6">
+
+          <div class="card glass border-0 h-100 hover-lift shadow-sm">
+            <div class="card-body p-4 d-flex flex-column">
+
+              <h6 class="fw-bold mb-2 text-dark">
+                <a href="{{ url_for('info.video_db', id=v.id) }}"
+                   class="text-decoration-none">
+                  {{ v.title }}
+                </a>
+              </h6>
+
+              <p class="small text-muted mb-4 flex-grow-1">
+                {{ v.summary }}
+              </p>
+
+              <div class="d-flex gap-2">
+                <a href="{{ url_for('info.video_db', id=v.id) }}"
+                   class="btn btn-primary rounded-pill px-3 shadow-sm flex-grow-1">
+                  Watch Video
+                </a>
+                {% if current_user.role == 'asha' and v.created_by == current_user.id %}
+                <form action="{{ url_for('info.delete_video', id=v.id) }}" method="post" onsubmit="return confirm('Are you sure you want to delete this video?');">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button type="submit" class="btn btn-outline-danger rounded-pill px-3 shadow-sm" title="Delete Video">
+                      <i class="bi bi-trash"></i>
+                  </button>
+                </form>
+                {% endif %}
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+        {% endfor %}
+
+        {% for v in videos_static %}
+        <div class="col-md-6">
+
+          <div class="card glass border-0 h-100 hover-lift shadow-sm">
+            <div class="card-body p-4 d-flex flex-column">
+
+              <h6 class="fw-bold mb-2 text-dark">
+                <a href="{{ url_for('info.video', slug=v.slug) }}"
+                   class="text-decoration-none">
+                  {{ v.title }}
+                </a>
+              </h6>
+
+              <p class="small text-muted mb-4 flex-grow-1">
+                {{ v.summary }}
+              </p>
+
+              <a href="{{ url_for('info.video', slug=v.slug) }}"
+                 class="btn btn-primary rounded-pill px-3 shadow-sm">
+                Watch Video
+              </a>
+
+            </div>
+          </div>
+
+        </div>
+        {% endfor %}
+
+      </div>
+    {% else %}
+      <p class="text-muted text-center small">
+        No videos available for this category.
+      </p>
+    {% endif %}
+
+  </div>
+</div>
+
+<div class="text-center mt-4 fade-in-up" style="animation-delay: 0.2s;">
+  <a href="{{ url_for('info.info_home') }}"
+     class="btn btn-outline-secondary rounded-pill px-4 shadow-sm">
+    <i class="bi bi-arrow-left me-1"></i>
+    Back to Topics
+  </a>
+</div>
+
+{% endblock %}

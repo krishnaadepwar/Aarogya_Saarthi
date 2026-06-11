@@ -1,0 +1,219 @@
+{% extends "info_base.html" %}
+{% block title %}{{ article.title }}{% endblock %}
+{% block info_content %}
+
+<style>
+  .tracking-wide {
+    letter-spacing: 0.05em;
+  }
+</style>
+
+<div class="row justify-content-center">
+  <div class="col-md-10 col-lg-8">
+
+    <!-- ================= ARTICLE HEADER ================= -->
+    <div class="mb-5 text-center fade-in-up" style="animation-delay: 0.1s;">
+      <div class="mb-3">
+        <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2 text-uppercase small fw-bold tracking-wide">
+          {{ article.category }}
+        </span>
+      </div>
+      <h1 class="fw-bold text-dark mb-3 display-5">
+        {{ article.title }}
+      </h1>
+
+      <div class="text-muted small d-flex justify-content-center align-items-center gap-3">
+        <span>
+          <i class="bi bi-calendar-check me-1"></i>
+          Last reviewed: {{ article.reviewed }}
+        </span>
+      </div>
+    </div>
+
+    <!-- ================= ARTICLE SECTIONS ================= -->
+
+    <div class="card glass shadow-sm border-0 mb-4 fade-in-up" style="animation-delay: 0.2s;">
+      <div class="card-body p-4 p-md-5">
+        <h4 class="fw-bold text-primary mb-3">What is it?</h4>
+        <p class="mb-0 text-secondary lh-lg">{{ article.what }}</p>
+      </div>
+    </div>
+
+    <div class="card glass shadow-sm border-0 mb-4 fade-in-up" style="animation-delay: 0.3s;">
+      <div class="card-body p-4 p-md-5">
+        <h4 class="fw-bold text-primary mb-3">Why does it matter?</h4>
+        <p class="mb-0 text-secondary lh-lg">{{ article.why }}</p>
+      </div>
+    </div>
+
+    <div class="row g-4 mb-4 fade-in-up" style="animation-delay: 0.4s;">
+      <div class="col-md-6">
+        <div class="card glass shadow-sm border-0 h-100">
+          <div class="card-body p-4">
+            <h5 class="fw-bold text-danger mb-3">
+              <i class="bi bi-exclamation-circle me-2"></i>
+              Causes & Factors
+            </h5>
+            <ul class="mb-0 ps-3 text-secondary">
+              {% for item in article.causes %}
+                <li class="mb-2">{{ item }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="card glass shadow-sm border-0 h-100">
+          <div class="card-body p-4">
+            <h5 class="fw-bold text-warning mb-3">
+              <i class="bi bi-search me-2"></i>
+              Signs & Effects
+            </h5>
+            <ul class="mb-0 ps-3 text-secondary">
+              {% for item in article.signs %}
+                <li class="mb-2">{{ item }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card glass shadow-sm border-0 mb-4 fade-in-up" style="animation-delay: 0.5s;">
+      <div class="card-body p-4 p-md-5 bg-success-subtle bg-opacity-10">
+        <h4 class="fw-bold text-success mb-3">
+          <i class="bi bi-shield-check me-2"></i>
+          Healthy Practices & Prevention
+        </h4>
+        <ul class="mb-0 ps-3 text-secondary lh-lg">
+          {% for item in article.prevention %}
+            <li class="mb-2">{{ item }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+    <div class="card glass shadow-sm border-0 mb-4 fade-in-up" style="animation-delay: 0.6s;">
+      <div class="card-body p-4 p-md-5">
+        <h4 class="fw-bold text-primary mb-3">
+          <i class="bi bi-hospital me-2"></i>
+          When to seek professional help
+        </h4>
+        <p class="mb-0 text-secondary lh-lg">{{ article.help }}</p>
+      </div>
+    </div>
+
+    <!-- ================= DYNAMIC SECTIONS (AUTO-GENERATE) ================= -->
+    {# This loop automatically renders any new fields you add to content.py #}
+    
+    {% set skip_keys = ['slug', 'title', 'category', 'summary', 'reviewed', 'sources', 'what', 'why', 'causes', 'signs', 'prevention', 'help'] %}
+    
+    {% for key, value in article.items() %}
+      {% if key not in skip_keys %}
+        
+        {% set title = key|replace('_', ' ')|title %}
+        {% set is_danger = 'worry' in key or 'call' in key or 'danger' in key or 'mistake' in key or 'limit' in key %}
+        {% set is_success = 'goal' in key or 'safe' in key or 'practice' in key %}
+
+        <div class="card glass shadow-sm border-0 mb-4 fade-in-up border-top border-4 
+          {% if is_danger %}border-danger{% elif is_success %}border-success{% else %}border-primary{% endif %}">
+          
+          <div class="card-body p-4 p-md-5">
+            <h4 class="fw-bold mb-4 {% if is_danger %}text-danger{% elif is_success %}text-success{% else %}text-primary{% endif %}">
+              {{ title }}
+            </h4>
+
+            {# CASE 1: Simple String #}
+            {% if value is string %}
+              <p class="mb-0 text-secondary lh-lg">{{ value }}</p>
+
+            {# CASE 2: Dictionary (Key-Value pairs) #}
+            {% elif value is mapping %}
+              <div class="row g-3">
+                {% for k, v in value.items() %}
+                  <div class="col-md-6">
+                    <div class="p-3 border rounded-3 h-100 bg-light bg-opacity-50">
+                      <h6 class="fw-bold text-dark text-capitalize mb-2">{{ k|replace('_', ' ') }}</h6>
+                      
+                      {% if v is string %}
+                        <p class="small text-secondary mb-0">{{ v }}</p>
+                      {% elif v is mapping %}
+                        {% for sub_k, sub_v in v.items() %}
+                          <div class="mb-1 small">
+                            <strong class="text-capitalize text-muted">{{ sub_k|replace('_', ' ') }}:</strong> 
+                            <span class="text-dark">{{ sub_v }}</span>
+                          </div>
+                        {% endfor %}
+                      {% elif v is iterable %}
+                        <ul class="mb-0 ps-3 small text-secondary">
+                          {% for item in v %}<li>{{ item }}</li>{% endfor %}
+                        </ul>
+                      {% endif %}
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+
+            {# CASE 3: List (Bulleted items) #}
+            {% elif value is iterable %}
+              <ul class="mb-0 ps-3 text-secondary lh-lg">
+                {% for item in value %}
+                  <li class="mb-2">
+                    {% if item is string %}
+                      {{ item }}
+                    {% elif item is mapping %}
+                      {# Handle list of dicts like myths or hunger cues #}
+                      {% for k, v in item.items() %}
+                        <div class="{% if k == 'myth' or k == 'stage' %}fw-bold text-dark{% else %}text-secondary{% endif %}">
+                          <span class="text-capitalize">{{ k }}:</span> {{ v }}
+                        </div>
+                      {% endfor %}
+                    {% endif %}
+                  </li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+
+          </div>
+        </div>
+      {% endif %}
+    {% endfor %}
+
+    <!-- ================= SOURCES ================= -->
+    <div class="card bg-light border-0 mb-5 fade-in-up" style="animation-delay: 0.7s;">
+      <div class="card-body p-4">
+        <h6 class="fw-bold text-muted mb-2 text-uppercase small">Sources</h6>
+        <ul class="small mb-0 text-muted ps-3">
+          {% for src in article.sources %}
+            <li>{{ src }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+    <!-- ================= DISCLAIMER ================= -->
+    <div class="alert alert-warning small border-0 shadow-sm fade-in-up" style="animation-delay: 0.8s;">
+      <div class="d-flex">
+        <i class="bi bi-exclamation-triangle-fill me-3 fs-5"></i>
+        <div>
+          <strong>Disclaimer:</strong>
+          This content is for informational and educational purposes only.
+          It does not replace professional medical advice, diagnosis, or treatment.
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= BACK ================= -->
+    <div class="text-center mt-5 fade-in-up" style="animation-delay: 0.9s;">
+      <a href="{{ url_for('info.category', name=article.category|lower|replace(' ', '-') ) }}"
+         class="btn btn-outline-secondary rounded-pill px-4 shadow-sm hover-lift">
+        <i class="bi bi-arrow-left me-1"></i>
+        Back to {{ article.category }}
+      </a>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

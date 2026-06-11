@@ -1,0 +1,118 @@
+{% extends "disease_base.html" %}
+{% block content %}
+
+<!-- ================= PAGE HEADER ================= -->
+<div class="mb-5 text-center fade-in-up">
+  <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2 mb-3">Visual Diagnosis</span>
+  <h3 class="display-6 fw-bold text-primary mb-2">
+    Select Your Symptoms
+  </h3>
+  <p class="text-muted lead mx-auto" style="max-width: 600px;">
+    Tap on the images that match what you are experiencing.
+  </p>
+</div>
+
+<form method="POST">
+
+  <!-- ================= VISUAL GRID ================= -->
+  <div class="row g-4 justify-content-center mb-5 fade-in-up" style="animation-delay: 0.1s;">
+
+    {% for item in visuals %}
+    <div class="col-6 col-md-4 col-lg-3">
+
+      <label class="visual-symptom-card h-100 position-relative d-block group">
+        
+        <input type="checkbox"
+               name="visual_symptoms"
+               value="{{ item.sym }}"
+               class="d-none peer">
+
+        <div class="card glass h-100 border-0 shadow-sm transition-all hover-lift overflow-hidden">
+          
+          <!-- Image Container -->
+          <div class="position-relative aspect-ratio-1x1 bg-white">
+            <img src="{{ url_for('disease.static', filename=item.image) }}"
+                 alt="{{ item.sym }}"
+                 class="w-100 h-100 object-fit-cover transition-transform duration-500">
+            
+            <!-- Check Overlay -->
+            <div class="check-overlay position-absolute top-0 start-0 w-100 h-100 bg-primary bg-opacity-25 d-flex align-items-center justify-content-center opacity-0 transition-opacity duration-300">
+              <div class="bg-white text-primary rounded-circle shadow-lg p-2 animate-bounce">
+                <i class="bi bi-check-lg display-6 fw-bold"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Label -->
+          <div class="card-body text-center p-3 transition-colors duration-300">
+            <h6 class="mb-0 fw-semibold text-dark">{{ item.sym }}</h6>
+          </div>
+          
+        </div>
+
+      </label>
+
+    </div>
+    {% endfor %}
+
+  </div>
+
+  <!-- ================= ACTION ================= -->
+  <div class="text-center pb-5 fade-in-up" style="animation-delay: 0.2s;">
+    <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5 shadow-lg hover-lift">
+      <span class="me-2">Analyze Symptoms</span>
+      <i class="bi bi-arrow-right-circle"></i>
+    </button>
+  </div>
+
+</form>
+
+<div class="text-center mb-5 fade-in-up" style="animation-delay: 0.3s;">
+  <a href="{{ url_for('disease.disease_home') }}"
+     class="text-decoration-none text-muted hover-primary small fw-semibold">
+    <i class="bi bi-arrow-left me-1"></i> Back to Disease Home
+  </a>
+</div>
+
+<style>
+  /* Custom Styles for Visual Selection */
+  .visual-symptom-card {
+    cursor: pointer;
+  }
+  
+  /* Peer Checked State Logic (simulating Tailwind peer) */
+  .visual-symptom-card input:checked + .card .check-overlay {
+    opacity: 1 !important;
+  }
+  
+  .visual-symptom-card input:checked + .card {
+    border: 2px solid var(--bs-primary) !important;
+    transform: translateY(-5px);
+  }
+  
+  .visual-symptom-card input:checked + .card .card-body {
+    background-color: var(--bs-primary-bg-subtle);
+    color: var(--bs-primary);
+  }
+  
+  /* Hover Effects */
+  .visual-symptom-card:hover .card img {
+    transform: scale(1.1);
+  }
+  
+  .aspect-ratio-1x1 {
+    aspect-ratio: 1;
+    overflow: hidden;
+  }
+  
+  .animate-bounce {
+    animation: bounce 0.5s cubic-bezier(0.36, 0, 0.66, -0.56) infinite alternate;
+  }
+  
+  @keyframes bounce {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-5px); }
+  }
+</style>
+
+{% endblock %}

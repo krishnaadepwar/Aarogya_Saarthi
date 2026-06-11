@@ -1,0 +1,133 @@
+{% extends "disease_base.html" %}
+{% block content %}
+
+<!-- ================= PAGE HEADER ================= -->
+<div class="mb-4 text-center">
+  <h3 class="fw-bold text-primary mb-1">
+    Disease Prediction Results
+  </h3>
+  <p class="text-muted mb-0">
+    Based on the symptoms you selected, the following conditions are suggested
+  </p>
+</div>
+
+<!-- ================= FINAL SYMPTOMS ================= -->
+<div class="row justify-content-center mb-4">
+  <div class="col-md-8">
+
+    <div class="card glass shadow-sm border-0 fade-in-up" style="animation-delay: 0.1s;">
+      <div class="card-body p-4">
+
+        <h6 class="fw-bold mb-3 text-secondary text-uppercase small">
+          <i class="bi bi-list-check me-2 text-primary"></i>
+          Symptoms Analyzed
+        </h6>
+
+        <div class="d-flex flex-wrap gap-2">
+          {% for sym in final %}
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill fw-normal">
+              {{ sym }}
+            </span>
+          {% endfor %}
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ================= PREDICTED DISEASES ================= -->
+<div class="row justify-content-center">
+  <div class="col-md-8">
+
+    <div class="card glass shadow-lg border-0 fade-in-up" style="animation-delay: 0.2s;">
+      <div class="card-header bg-transparent border-bottom-0 pt-4 px-4">
+        <h5 class="fw-bold mb-0 text-dark">
+          <i class="bi bi-activity me-2 text-danger"></i>
+          Prediction Results
+        </h5>
+      </div>
+      <div class="card-body p-0">
+
+        {% if predictions %}
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0 custom-table">
+            <thead class="bg-light-subtle text-secondary small text-uppercase">
+              <tr>
+                <th class="ps-4 py-3">Disease / Condition</th>
+                <th class="pe-4 py-3 text-end">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for disease, prob in predictions %}
+              <tr>
+                <td class="ps-4 py-3">
+                  <span class="fw-semibold text-dark">{{ disease }}</span>
+                </td>
+                <td class="pe-4 py-3 text-end">
+                  <a href="{{ url_for('disease.disease_info', disease=disease) }}"
+                     class="btn btn-sm btn-primary rounded-pill px-3 shadow-sm hover-lift">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Details
+                  </a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- ================= SEND TO ASHA OPTION ================= -->
+        <div class="card-footer bg-light-subtle p-4 border-top">
+          <div class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-3">
+            <div>
+              <h6 class="fw-bold mb-1 text-dark">Consult an ASHA Worker</h6>
+              <p class="text-muted small mb-0">Send your symptoms and results to your area's ASHA for guidance.</p>
+            </div>
+            <form action="{{ url_for('disease.send_to_asha') }}" method="POST">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn btn-outline-primary rounded-pill px-4 shadow-sm hover-lift">
+                <i class="bi bi-send-fill me-2"></i>
+                Send to ASHA
+              </button>
+            </form>
+          </div>
+        </div>
+        {% else %}
+          <div class="text-center p-5">
+            <div class="mb-3 text-muted">
+              <i class="bi bi-search display-6"></i>
+            </div>
+            <p class="text-muted fw-semibold">
+              No matching diseases found for these symptoms.
+            </p>
+          </div>
+        {% endif %}
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ================= ACTIONS ================= -->
+<div class="text-center mt-5 fade-in-up" style="animation-delay: 0.3s;">
+  <a href="{{ url_for('disease.disease_home') }}"
+     class="btn btn-outline-primary btn-lg rounded-pill px-4 hover-lift">
+    <i class="bi bi-arrow-repeat me-2"></i>
+    Start New Analysis
+  </a>
+</div>
+
+<!-- ================= DISCLAIMER ================= -->
+<div class="text-center mt-4 fade-in-up" style="animation-delay: 0.4s;">
+  <div class="alert alert-warning d-inline-block shadow-sm border-0 py-2 px-4 rounded-pill">
+    <small class="fw-semibold">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i>
+      AI Assistant only. Please consult a doctor for diagnosis.
+    </small>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- ================= PAGE HEADER ================= -->
+<div class="mb-4 fade-in-up">
+  <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+    <div class="d-flex align-items-center">
+      <div class="bg-primary-subtle text-primary rounded-circle p-3 me-3">
+        <i class="bi bi-box-seam-fill fs-4"></i>
+      </div>
+      <div>
+        <h3 class="fw-bold text-primary mb-1">Supply Requests</h3>
+        <p class="text-muted mb-0">Monitor and manage requests from your patients</p>
+      </div>
+    </div>
+    {% if requests %}
+    {% set unique_patients = (requests|groupby('patient_id')|list)|length %}
+    <div class="d-flex align-items-center flex-wrap gap-2">
+      <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-2">
+        <i class="bi bi-clipboard2-plus me-1"></i> {{ requests|length }} Total
+      </span>
+      <span class="badge bg-info-subtle text-info border border-info-subtle rounded-pill px-3 py-2">
+        <i class="bi bi-people-fill me-1"></i> {{ unique_patients }} Patients
+      </span>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- ================= REQUESTS TABLE ================= -->
+<div class="card glass border-0 overflow-hidden fade-in-up" style="animation-delay: 0.1s;">
+  <div class="card-body p-0">
+
+    {% if requests %}
+    <div class="p-3 border-bottom bg-light bg-opacity-50">
+      <div class="row g-3 align-items-center">
+        <div class="col-md-6">
+          <div class="position-relative">
+            <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+            <input id="requestSearch" class="form-control ps-5 bg-white border-0 shadow-sm" placeholder="Search by patient ID or item name">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-striped table-hover align-middle mb-0">
+        <thead class="bg-light bg-opacity-75 text-secondary text-uppercase small letter-spacing-1 sticky-top">
+          <tr>
+            <th class="ps-4 py-3">Patient</th>
+            <th class="py-3">Requested Item</th>
+            <th class="py-3">Quantity</th>
+            <th class="py-3">Date Requested</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for r in requests %}
+          <tr class="transition-base request-row">
+            <td class="ps-4 py-3">
+              <span class="fw-semibold text-dark">{{ r.patient_name or 'Unknown' }}</span>
+            </td>
+            <td>
+              <div class="d-flex align-items-center">
+                <div class="avatar-sm bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center me-2">
+                  <i class="bi bi-capsule"></i>
+                </div>
+                {{ r.item_name }}
+              </div>
+            </td>
+            <td>
+              <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1 rounded-pill">
+                {{ r.quantity }} Units
+              </span>
+            </td>
+            <td class="text-muted small">
+              <i class="bi bi-calendar3 me-1 opacity-50"></i>
+              {{ r.created_at.strftime('%d %b %Y') }}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <script>
+      const input = document.getElementById('requestSearch');
+      if (input) {
+        input.addEventListener('input', function () {
+          const q = this.value.toLowerCase();
+          document.querySelectorAll('.request-row').forEach(row => {
+            const txt = row.innerText.toLowerCase();
+            row.style.display = txt.includes(q) ? '' : 'none';
+          });
+        });
+      }
+    </script>
+    {% else %}
+      <div class="text-center py-5 text-muted">
+        <div class="bg-light rounded-circle d-inline-flex p-4 mb-3">
+          <i class="bi bi-inbox display-4 opacity-25"></i>
+        </div>
+        <p class="mb-0">No supply requests received yet.</p>
+      </div>
+    {% endif %}
+
+  </div>
+</div>
+
+{% endblock %}

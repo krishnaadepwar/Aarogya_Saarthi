@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- ================= PAGE HEADER ================= -->
+<div class="mb-4 fade-in-up">
+  <!-- <a href="{{ url_for('admin.patients') }}" class="text-decoration-none text-muted mb-2 d-inline-block hover-primary transition-base">
+    <i class="bi bi-arrow-left me-1"></i> Back to Patient Directory
+  </a> -->
+  <h3 class="fw-bold text-primary mb-1 text-center">Patient Profile</h3>
+  <p class="text-muted mb-0 text-center">
+    Detailed health record and personal information
+  </p>
+</div>
+
+<!-- ================= PROFILE CARD ================= -->
+<div class="row justify-content-center fade-in-up" style="animation-delay: 0.1s;">
+  <div class="col-lg-6 col-md-8">
+
+    <div class="card glass border-0 overflow-hidden">
+      
+      <div class="card-header bg-gradient-primary text-white p-4 border-0 text-center position-relative overflow-hidden">
+        <div class="position-absolute top-0 start-0 w-100 h-100 bg-white opacity-10" style="background-image: radial-gradient(circle at 80% 20%, rgba(255,255,255,0.4) 0%, transparent 50%);"></div>
+        
+        <div class="avatar-lg bg-white text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3 shadow-lg position-relative" style="width: 80px; height: 80px; font-size: 2.5rem;">
+          {{ profile.name[:1] }}
+        </div>
+        <h4 class="fw-bold mb-1 position-relative">{{ profile.name }}</h4>
+        <span class="badge bg-white bg-opacity-25 border border-white border-opacity-50 text-white rounded-pill position-relative">
+          Patient
+        </span>
+      </div>
+
+      <div class="card-body p-4 bg-white bg-opacity-50">
+
+        <div class="list-group list-group-flush rounded-3 bg-white shadow-sm overflow-hidden">
+
+          
+
+          <div class="list-group-item p-3 border-light">
+            <div class="d-flex align-items-center">
+              <div class="bg-danger-subtle text-danger rounded-circle p-2 me-3">
+                <i class="bi bi-calendar3"></i>
+              </div>
+              <div>
+                <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">AGE</small>
+                <span class="fw-medium text-dark">{{ profile.age }} yrs</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="list-group-item p-3 border-light">
+            <div class="d-flex align-items-center">
+              <div class="bg-primary-subtle text-primary rounded-circle p-2 me-3">
+                <i class="bi bi-gender-ambiguous"></i>
+              </div>
+              <div>
+                <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">GENDER</small>
+                <span class="fw-medium text-dark">{{ profile.gender }}</span>
+              </div>
+            </div>
+          </div>
+
+          
+
+          <div class="list-group-item p-3 border-light">
+            <div class="d-flex align-items-center">
+              <div class="bg-primary-subtle text-primary rounded-circle p-2 me-3">
+                <i class="bi bi-telephone-fill"></i>
+              </div>
+              <div>
+                <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Contact Number</small>
+                <span class="fw-medium text-dark">{{ profile.phone }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="list-group-item p-3 border-light">
+            <div class="d-flex align-items-center">
+              <div class="bg-danger-subtle text-danger rounded-circle p-2 me-3">
+                <i class="bi bi-geo-alt-fill"></i>
+              </div>
+              <div>
+                <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Residence Area</small>
+                <span class="fw-medium text-dark">{{ profile.area }}</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

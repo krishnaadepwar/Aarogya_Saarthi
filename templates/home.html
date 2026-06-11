@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- ================= HERO SECTION ================= -->
+<section class="hero-section py-5 mb-5 fade-in-up position-relative overflow-hidden">
+  <!-- Background Decor -->
+  
+
+  <div class="container py-4">
+    <div class="row align-items-center justify-content-center">
+      <div class="col-lg-9 text-center text-lg-start z-1">
+        <span class="badge bg-white bg-opacity-50 text-primary shadow-sm mb-3 px-3 py-2 rounded-pill border border-white backdrop-blur">
+          <i class="bi bi-stars me-1"></i> Digital Healthcare for Everyone
+        </span>
+        <h1 class="display-3 fw-bold mb-3 text-dark tracking-tight">
+          <i class="bi bi-heart-pulse-fill text-gradient-primary display-1" style="font-size: 4rem;"></i>
+          Welcome to <span class="text-gradient-primary">Aarogya Saarthi</span>
+        </h1>
+        <p class="lead text-muted mb-4 pe-lg-5 fw-medium">
+          A unified platform bridging the gap between <span class="text-primary">Patients</span>, <span class="text-primary">ASHA Workers</span>, and <span class="text-primary">Administrators</span>. 
+          Experience seamless healthcare management at your fingertips.
+        </p>
+        
+      </div>
+      
+    </div>
+  </div>
+</section>
+
+
+<!-- ================= ROLE SELECTION ================= -->
+<section id="roles" class="container mb-5 pb-5">
+  <div class="text-center mb-5 fade-in-up">
+    <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2 mb-2">Get Started</span>
+    <h2 class="fw-bold display-6">Choose Your Portal</h2>
+    <p class="text-muted">Select your role to access personalized services</p>
+  </div>
+
+  <div class="row justify-content-center g-4">
+
+    <!-- Patient Card -->
+    <div class="col-md-5 col-lg-4 fade-in-up" style="animation-delay: 0.1s;">
+      <div class="card glass text-center p-4 h-100 position-relative overflow-hidden card-hover border-top border-4 border-primary">
+        <div class="position-absolute top-0 start-0 w-100 h-100 bg-gradient-primary opacity-05"></div>
+        
+        <div class="role-icon bg-primary text-white mb-4 position-relative mx-auto rounded-circle d-flex align-items-center justify-content-center shadow-lg" style="width: 80px; height: 80px;">
+          <i class="bi bi-person-heart fs-2"></i>
+        </div>
+
+        <h3 class="fw-bold mb-2 position-relative">Patient</h3>
+        <p class="text-muted small mb-4 position-relative">
+          Access healthcare services, reminders, and connect with local health workers.
+        </p>
+
+        <a href="{{ url_for('auth.login', role='patient') }}" class="btn btn-primary w-100 position-relative stretched-link shadow-sm rounded-pill">
+          Login as Patient <i class="bi bi-arrow-right ms-1"></i>
+        </a>
+      </div>
+    </div>
+
+    <!-- ASHA Worker Card -->
+    <div class="col-md-5 col-lg-4 fade-in-up" style="animation-delay: 0.2s;">
+      <div class="card glass text-center p-4 h-100 position-relative overflow-hidden card-hover border-top border-4 border-success">
+        <div class="position-absolute top-0 start-0 w-100 h-100 bg-gradient-success opacity-05"></div>
+        
+        <div class="role-icon bg-success text-white mb-4 position-relative mx-auto rounded-circle d-flex align-items-center justify-content-center shadow-lg" style="width: 80px; height: 80px;">
+          <i class="bi bi-clipboard2-pulse fs-2"></i>
+        </div>
+
+        <h3 class="fw-bold mb-2 position-relative">ASHA Worker</h3>
+        <p class="text-muted small mb-4 position-relative">
+          Manage patient records, track tasks, and coordinate community health.
+        </p>
+
+        <a href="{{ url_for('auth.login', role='asha') }}" class="btn btn-success w-100 position-relative stretched-link shadow-sm rounded-pill">
+          Login as ASHA <i class="bi bi-arrow-right ms-1"></i>
+        </a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<style>
+  .animate-float { animation: float 6s ease-in-out infinite; }
+  .animate-float-delayed-1 { animation: float 6s ease-in-out infinite 2s; }
+  .animate-float-delayed-2 { animation: float 6s ease-in-out infinite 4s; }
+  
+  @keyframes float {
+    0% { transform: translate(-50%, -50%) translateY(0px); }
+    50% { transform: translate(-50%, -50%) translateY(-20px); }
+    100% { transform: translate(-50%, -50%) translateY(0px); }
+  }
+  
+  /* Helper for btn-white if not in bootstrap */
+  .btn-white { background: white; color: var(--bs-primary); }
+  .btn-white:hover { background: #f8f9fa; color: var(--bs-primary-dark); }
+  
+  .tracking-tight { letter-spacing: -0.025em; }
+  .backdrop-blur { backdrop-filter: blur(4px); }
+</style>
+
+{% endblock %}

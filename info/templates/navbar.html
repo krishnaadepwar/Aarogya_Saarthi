@@ -1,0 +1,13 @@
+<nav class="navbar">
+  <ul>
+    <li class="dropdown">
+      <span>Well-Being</span>
+      <div class="dropdown-content">
+        {% for sub in categories["well-being"]["sub"] %}
+          {% set norm = sub|lower|replace(' ', '-')|replace('&', 'and') %}
+          <a href="{{ url_for('info.category', name=norm) }}">{{ sub }}</a>
+        {% endfor %}
+      </div>
+    </li>
+  </ul>
+</nav>

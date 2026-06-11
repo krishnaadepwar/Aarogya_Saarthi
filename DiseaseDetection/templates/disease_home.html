@@ -1,0 +1,54 @@
+{% extends "disease_base.html" %}
+{% block content %}
+
+
+<!-- ================= PAGE HEADER ================= -->
+<div class="mb-4 text-center fade-in-up">
+  <h3 class="fw-bold text-primary mb-1">Disease Detection</h3>
+  <p class="text-muted mb-0">
+    Select a method to identify possible diseases based on symptoms
+  </p>
+</div>
+
+<!-- ================= DETECTION OPTIONS ================= -->
+<div class="row justify-content-center g-4 fade-in-up" style="animation-delay: 0.1s;">
+
+  <!-- MANUAL INPUT -->
+  <div class="col-md-5">
+    <a href="{{ url_for('disease.manual_input') }}" class="card glass h-100 text-decoration-none text-dark hover-lift border-0 shadow-sm">
+      <div class="card-body text-center p-5">
+        <div class="d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-circle mb-4 shadow-sm" style="width: 80px; height: 80px;">
+          <i class="bi bi-pencil-square display-4"></i>
+        </div>
+        <h4 class="fw-bold mb-3">Manual Symptom Input</h4>
+        <p class="text-muted mb-4">
+          Enter symptoms manually and get disease predictions
+        </p>
+        <span class="btn btn-primary rounded-pill px-4 shadow-sm">
+          Start Manual Input
+        </span>
+      </div>
+    </a>
+  </div>
+
+  <!-- VISUAL INPUT -->
+  <div class="col-md-5">
+    <a href="{{ url_for('disease.visual_input') }}" class="card glass h-100 text-decoration-none text-dark hover-lift border-0 shadow-sm">
+      <div class="card-body text-center p-5">
+        <div class="d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-circle mb-4 shadow-sm" style="width: 80px; height: 80px;">
+          <i class="bi bi-camera display-4"></i>
+        </div>
+        <h4 class="fw-bold mb-3">Visual Symptom Selection</h4>
+        <p class="text-muted mb-4">
+          Select symptoms visually using guided images
+        </p>
+        <span class="btn btn-primary rounded-pill px-4 shadow-sm">
+          Start Visual Input
+        </span>
+      </div>
+    </a>
+  </div>
+
+</div>
+
+{% endblock %}

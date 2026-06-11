@@ -1,0 +1,63 @@
+{% extends "info_base.html" %}
+{% block title %}{{ video.title }}{% endblock %}
+{% block info_content %}
+
+<div class="row justify-content-center">
+  <div class="col-md-9">
+
+    <!-- ================= VIDEO HEADER ================= -->
+    <div class="mb-4">
+      <h1 class="fw-bold text-primary mb-2">
+        {{ video.title }}
+      </h1>
+      <p class="text-muted mb-0">
+        {{ video.summary }}
+      </p>
+    </div>
+
+    <!-- ================= VIDEO PLAYER ================= -->
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-body p-0">
+
+        {% if embed_url %}
+          <div class="ratio ratio-16x9">
+            <iframe
+              src="{{ embed_url }}"
+              title="{{ video.title }}"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowfullscreen>
+            </iframe>
+          </div>
+        {% else %}
+          <div class="p-4 text-center text-muted">
+            <i class="bi bi-camera-video-off display-6 mb-2"></i>
+            <p class="mb-0">
+              Video is currently unavailable.
+            </p>
+          </div>
+        {% endif %}
+
+      </div>
+    </div>
+
+    <!-- ================= DISCLAIMER ================= -->
+    <div class="alert alert-warning small">
+      <strong>Disclaimer:</strong>
+      This video is provided for health awareness and educational purposes only.
+      It should not be considered a substitute for professional medical advice.
+    </div>
+
+    <!-- ================= BACK ================= -->
+    <div class="text-center mt-4">
+      <a href="{{ url_for('info.category', name='video') }}"
+         class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left me-1"></i>
+        Back to Videos
+      </a>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

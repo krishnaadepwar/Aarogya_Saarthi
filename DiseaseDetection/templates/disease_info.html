@@ -1,0 +1,110 @@
+{% extends "disease_base.html" %}
+{% block content %}
+
+<!-- ================= PAGE HEADER ================= -->
+<div class="mb-4 text-center">
+  <h3 class="fw-bold text-primary mb-1">
+    {{ disease }}
+  </h3>
+  <p class="text-muted mb-0">
+    Health information, precautions, and care guidelines
+  </p>
+</div>
+
+<!-- ================= DISEASE DESCRIPTION ================= -->
+<div class="row justify-content-center mb-4">
+  <div class="col-md-8">
+
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+
+        <h6 class="fw-semibold mb-2">
+          <i class="bi bi-info-circle me-2"></i>
+          Description
+        </h6>
+
+        <p class="mb-0">
+          {{ description }}
+        </p>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ================= DO & DON'T ================= -->
+<div class="row justify-content-center mb-4">
+  <div class="col-md-4">
+
+    <div class="card shadow-sm border-0 h-100">
+      <div class="card-body">
+
+        <h6 class="fw-semibold text-success mb-3">
+          <i class="bi bi-check-circle-fill me-1"></i>
+          Do’s
+        </h6>
+
+        {% if do_list %}
+        <ul class="mb-0">
+          {% for item in do_list %}
+            <li>{{ item }}</li>
+          {% endfor %}
+        </ul>
+        {% else %}
+          <p class="text-muted small mb-0">
+            No specific recommendations available.
+          </p>
+        {% endif %}
+
+      </div>
+    </div>
+
+  </div>
+
+  <div class="col-md-4">
+
+    <div class="card shadow-sm border-0 h-100">
+      <div class="card-body">
+
+        <h6 class="fw-semibold text-danger mb-3">
+          <i class="bi bi-x-circle-fill me-1"></i>
+          Don’ts
+        </h6>
+
+        {% if dont_list %}
+        <ul class="mb-0">
+          {% for item in dont_list %}
+            <li>{{ item }}</li>
+          {% endfor %}
+        </ul>
+        {% else %}
+          <p class="text-muted small mb-0">
+            No restrictions listed.
+          </p>
+        {% endif %}
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ================= DISCLAIMER ================= -->
+<div class="text-center mb-4">
+  <small class="text-muted">
+    ⚠ This information is for awareness only and does not replace medical advice.
+    Please consult a doctor or ASHA worker for proper diagnosis and treatment.
+  </small>
+</div>
+
+<!-- ================= ACTION ================= -->
+<div class="text-center">
+  <a href="{{ url_for('disease.result') }}"
+     class="btn btn-outline-secondary">
+    <i class="bi bi-arrow-left me-1"></i>
+    Back to Results
+  </a>
+</div>
+
+{% endblock %}

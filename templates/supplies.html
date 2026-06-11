@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container py-4">
+
+  <!-- ================= PAGE HEADER ================= -->
+  <div class="text-center mb-5 fade-in-up">
+    <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2 mb-2">
+      <i class="bi bi-box-seam me-1"></i> Inventory
+    </span>
+    <h2 class="fw-bold display-6 mb-2">Medical Supplies</h2>
+    <p class="text-muted lead mx-auto" style="max-width: 600px;">
+      Browse available essential medicines and supplies. Request items directly from your ASHA worker.
+    </p>
+  </div>
+
+  <!-- ================= SUPPLIES GRID ================= -->
+  {% if cart and cart|length > 0 %}
+  <div class="card glass border-0 shadow-sm mb-4 fade-in-up">
+    <div class="card-header bg-transparent border-0 d-flex align-items-center justify-content-between">
+      <div class="d-flex align-items-center">
+        <div class="bg-primary-subtle text-primary rounded-circle p-2 me-2">
+          <i class="bi bi-cart3"></i>
+        </div>
+        <h5 class="mb-0 fw-bold text-dark">Your Cart</h5>
+      </div>
+      <form method="post" class="d-inline">
+        <input type="hidden" name="action" value="clear">
+        <button class="btn btn-outline-danger btn-sm rounded-pill">
+          <i class="bi bi-trash3 me-1"></i> Clear
+        </button>
+      </form>
+    </div>
+    <div class="card-body pt-0">
+      <ul class="list-group list-group-flush">
+        {% for e in cart %}
+        <li class="list-group-item d-flex align-items-center justify-content-between">
+          <div class="d-flex align-items-center">
+            <div class="avatar-sm bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center me-3">
+              <i class="bi bi-capsule"></i>
+            </div>
+            <div>
+              <div class="fw-semibold text-dark">{{ e.name }}</div>
+              <small class="text-muted">Quantity: {{ e.quantity }}</small>
+            </div>
+          </div>
+          <form method="post">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="action" value="remove">
+              <input type="hidden" name="index" value="{{ loop.index0 }}">
+            <button class="btn btn-outline-secondary btn-sm rounded-pill">
+              <i class="bi bi-x-circle me-1"></i> Remove
+            </button>
+          </form>
+        </li>
+        {% endfor %}
+      </ul>
+      <div class="mt-4 p-3 bg-light rounded-3">
+        <form method="post">
+          <input type="hidden" name="action" value="checkout">
+          
+          <div class="row align-items-end g-3">
+            <div class="col-md-8">
+              <label class="form-label fw-semibold text-dark mb-2">
+                <i class="bi bi-person-badge me-1"></i> Select ASHA Worker
+              </label>
+              <select name="asha_id" class="form-select border-0 shadow-sm rounded-pill px-3" required>
+                {% if ashas|length == 1 %}
+                  <option value="{{ ashas[0].user_id }}" selected>{{ ashas[0].name }}</option>
+                {% else %}
+                  <option value="" disabled selected>Choose an ASHA worker from your area...</option>
+                  {% for a in ashas %}
+                    <option value="{{ a.user_id }}">{{ a.name }}</option>
+                  {% endfor %}
+                {% endif %}
+              </select>
+            </div>
+            <div class="col-md-4 text-end">
+              <button class="btn btn-primary rounded-pill px-4 py-2 fw-bold shadow-sm w-100">
+                <i class="bi bi-send-check me-2"></i> Send Request
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="row g-4 fade-in-up" style="animation-delay: 0.1s;">
+
+    {% for s in supplies %}
+    <div class="col-sm-6 col-md-4 col-lg-3">
+
+      <div class="card glass h-100 border-0 shadow-lg card-hover overflow-hidden transition-all">
+        
+        <!-- Image Container -->
+        <div class="position-relative bg-white text-center p-4" style="height: 180px;">
+          <img src="{{ url_for('static', filename='images/' + s.image) }}"
+               class="img-fluid h-100 object-fit-contain transition-transform"
+               alt="{{ s.name }}"
+               style="mix-blend-mode: multiply;">
+          
+          <div class="position-absolute top-0 end-0 m-2">
+            <span class="badge bg-success-subtle text-success shadow-sm rounded-pill border border-success-subtle">
+              <i class="bi bi-check-circle-fill me-1"></i> Available
+            </span>
+          </div>
+        </div>
+
+        <!-- Body -->
+        <div class="card-body d-flex flex-column p-4">
+
+          <h5 class="fw-bold text-dark mb-1">{{ s.name }}</h5>
+          <p class="text-muted small mb-4">Essential Medical Supply</p>
+
+          <form method="post" class="mt-auto">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="item" value="{{ s.name }}">
+            <input type="hidden" name="action" value="add">
+
+            <div class="form-floating mb-3">
+              <input type="number"
+                     name="quantity"
+                     id="qty-{{ loop.index }}"
+                     class="form-control bg-light border-0 rounded-3"
+                     min="1"                     
+                     placeholder="Quantity"
+                     required>
+              <label for="qty-{{ loop.index }}">Quantity</label>
+            </div>
+
+            <button class="btn btn-primary w-100 fw-bold shadow-sm rounded-pill hover-lift">
+              <i class="bi bi-cart-plus me-2"></i> Add to Cart
+            </button>
+          </form>
+
+        </div>
+      </div>
+
+    </div>
+    {% endfor %}
+
+  </div>
+
+  {% if supplies|length == 0 %}
+    <div class="text-center py-5 fade-in-up">
+      <div class="bg-light rounded-circle d-inline-flex p-4 mb-3">
+        <i class="bi bi-box2 text-muted display-4"></i>
+      </div>
+      <h4 class="text-muted">No supplies available</h4>
+      <p class="text-secondary">Please check back later or contact your ASHA worker.</p>
+    </div>
+  {% endif %}
+
+</div>
+
+{% endblock %}

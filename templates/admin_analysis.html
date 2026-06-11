@@ -1,0 +1,379 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container py-4">
+  <!-- <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-5 fade-in-up">
+    <div>
+      <h3 class="fw-bold text-dark mb-1">ASHA Management Analytics</h3>
+      <p class="text-muted mb-0">
+        Visual insights into patient categories, tasks, and healthcare indicators
+      </p>
+    </div> -->
+
+  <!-- ================= ALL ASHAs – KPIs ================= -->
+  <div class="row g-3 mb-4 fade-in-up">
+    <div class="col-6 col-md-3">
+      <div class="p-3 bg-white rounded-3 shadow-sm h-100">
+        <div class="text-xs text-muted text-uppercase fw-bold mb-1">ASHA Workers</div>
+        <div class="h4 fw-bold text-primary mb-0">{{ overall_kpis.total_ashas }}</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="p-3 bg-white rounded-3 shadow-sm h-100">
+        <div class="text-xs text-muted text-uppercase fw-bold mb-1">Households</div>
+        <div class="h4 fw-bold text-teal mb-0">{{ overall_kpis.households }}</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="p-3 bg-white rounded-3 shadow-sm h-100">
+        <div class="text-xs text-muted text-uppercase fw-bold mb-1">Population</div>
+        <div class="h4 fw-bold text-indigo mb-0">{{ overall_kpis.population }}</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="p-3 bg-white rounded-3 shadow-sm h-100">
+        <div class="text-xs text-muted text-uppercase fw-bold mb-1">Tasks Done</div>
+        <div class="h4 fw-bold text-success mb-0">{{ overall_kpis.task_completion_rate }}%</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="p-3 bg-white rounded-3 shadow-sm h-100">
+        <div class="text-xs text-muted text-uppercase fw-bold mb-1">Ongoing Pregnancies</div>
+        <div class="h5 fw-semibold mb-0">{{ overall_kpis.pregnancies_ongoing }}</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="p-3 bg-white rounded-3 shadow-sm h-100">
+        <div class="text-xs text-muted text-uppercase fw-bold mb-1">High Risk</div>
+        <div class="h5 fw-semibold text-danger mb-0">{{ overall_kpis.high_risk }}</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="p-3 bg-white rounded-3 shadow-sm h-100">
+        <div class="text-xs text-muted text-uppercase fw-bold mb-1">Growth Checks Done</div>
+        <div class="h5 fw-semibold text-primary mb-0">{{ overall_kpis.growth_checks_total }}</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="p-3 bg-white rounded-3 shadow-sm h-100">
+        <div class="text-xs text-muted text-uppercase fw-bold mb-1">Overdue Tasks</div>
+        <div class="h5 fw-semibold text-warning mb-0">{{ overall_kpis.overdue_tasks }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= ASHA Performance Comparison ================= -->
+  <div class="card glass border-0 mb-5 fade-in-up" style="animation-delay: 0.1s;">
+    <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0 d-flex justify-content-between align-items-center">
+      <div>
+        <h5 class="fw-bold text-success mb-0">
+          <i class="bi bi-people-fill me-2"></i> ASHA Performance Comparison
+        </h5>
+        <p class="text-muted small mb-0">Sort columns and filter by village</p>
+      </div>
+      <div class="d-flex gap-2">
+        <div class="input-group input-group-sm">
+          <span class="input-group-text bg-white"><i class="bi bi-funnel"></i></span>
+          <input id="villageFilter" class="form-control" placeholder="Filter by village">
+        </div>
+      </div>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0" id="asha-table">
+        <thead class="table-light">
+          <tr>
+            <th scope="col" data-sort="text">ASHA</th>
+            <th scope="col" data-sort="text">Village</th>
+            <th scope="col" data-sort="num">Population</th>
+            <th scope="col" data-sort="num">Pregnancies</th>
+            <th scope="col" data-sort="num">High Risk</th>
+            <th scope="col" data-sort="num">Tasks Completed %</th>
+            <th scope="col" data-sort="num">Overdue Tasks</th>
+            <th scope="col" data-sort="num">Visits This Month</th>
+            <th scope="col"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in asha_rows %}
+            <tr>
+              <td>{{ row.name }}</td>
+              <td>{{ row.village }}</td>
+              <td>{{ row.population }}</td>
+              <td>{{ row.pregnancies }}</td>
+              <td class="text-danger fw-semibold">{{ row.high_risk }}</td>
+              <td>
+                <span class="badge {% if row.tasks_completed_pct >= 90 %}bg-success-subtle text-success{% elif row.tasks_completed_pct >= 70 %}bg-warning-subtle text-warning{% else %}bg-danger-subtle text-danger{% endif %}">
+                  {{ row.tasks_completed_pct }}%
+                </span>
+              </td>
+              <td>{{ row.overdue_tasks }}</td>
+              <td>{{ row.visits_this_month }}</td>
+              <td>
+                <a href="{{ url_for('analytics.admin_asha_analysis', detail_asha_id=row.id) }}" class="btn btn-sm btn-outline-primary">View Detail</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      const table = document.getElementById('asha-table');
+      if (!table) return;
+      const tbody = table.querySelector('tbody');
+      const headers = table.querySelectorAll('thead th[data-sort]');
+      let sortIndex = -1, sortDir = 1;
+      function getCellValue(tr, idx, type) {
+        const t = tr.children[idx].innerText.trim();
+        if (type === 'num') return parseFloat(t.replace('%','')) || 0;
+        return t.toLowerCase();
+      }
+      function sortBy(idx, type) {
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        const dir = (idx === sortIndex) ? -sortDir : 1;
+        rows.sort((a,b)=>{
+          const va = getCellValue(a, idx, type), vb = getCellValue(b, idx, type);
+          if (va < vb) return -1*dir; if (va > vb) return 1*dir; return 0;
+        });
+        rows.forEach(r=>tbody.appendChild(r));
+        sortIndex = idx; sortDir = dir;
+      }
+      headers.forEach((th, idx)=>{
+        th.style.cursor='pointer';
+        th.addEventListener('click', ()=>sortBy(idx, th.getAttribute('data-sort')));
+      });
+      const filter = document.getElementById('villageFilter');
+      if (filter) {
+        filter.addEventListener('input', ()=>{
+          const q = filter.value.trim().toLowerCase();
+          Array.from(tbody.querySelectorAll('tr')).forEach(tr=>{
+            const village = tr.children[1].innerText.trim().toLowerCase();
+            tr.style.display = !q || village.includes(q) ? '' : 'none';
+          });
+        });
+      }
+    })();
+  </script>
+
+  <!-- ================= PAGE HEADER ================= -->
+  <!-- <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-5 fade-in-up">
+    <div>
+      <h3 class="fw-bold text-dark mb-1">ASHA Management Analytics</h3>
+      <p class="text-muted mb-0">
+        Visual insights into patient categories, tasks, and healthcare indicators
+      </p>
+    </div> -->
+    <!-- <div class="mt-3 mt-md-0">
+      <div class="btn-group shadow-sm">
+        <button class="btn btn-light active fw-semibold">Overview</button>
+        <button class="btn btn-light text-muted">Detailed Reports</button>
+      </div>
+    </div> -->
+  </div>
+
+  <!-- ================= SECTION: PATIENT DISTRIBUTION ================= -->
+  <div class="card glass border-0 mb-5 fade-in-up" style="animation-delay: 0.1s;">
+    <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0">
+      <h5 class="fw-bold text-primary mb-0">
+        <i class="bi bi-people-fill me-2"></i> Patient Demographics
+      </h5>
+    </div>
+    <div class="card-body p-4">
+      <div class="row g-4">
+        <div class="col-md-6 col-lg-3">
+          <div class="p-3 bg-white rounded-3 shadow-sm h-100">
+            <h6 class="text-muted small text-uppercase fw-bold mb-3">Pregnant Women</h6>
+            <div class="position-relative" style="height: 200px;">
+              <canvas id="pw_chart"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+          <div class="p-3 bg-white rounded-3 shadow-sm h-100">
+            <h6 class="text-muted small text-uppercase fw-bold mb-3">Children</h6>
+            <div class="position-relative" style="height: 200px;">
+              <canvas id="child_chart"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+          <div class="p-3 bg-white rounded-3 shadow-sm h-100">
+            <h6 class="text-muted small text-uppercase fw-bold mb-3">Elderly</h6>
+            <div class="position-relative" style="height: 200px;">
+              <canvas id="elderly_chart"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+          <div class="p-3 bg-white rounded-3 shadow-sm h-100">
+            <h6 class="text-muted small text-uppercase fw-bold mb-3">General</h6>
+            <div class="position-relative" style="height: 200px;">
+              <canvas id="gp_chart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= SECTION: TASK PERFORMANCE ================= -->
+  <div class="card glass border-0 mb-5 fade-in-up" style="animation-delay: 0.2s;">
+    <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0">
+      <h5 class="fw-bold text-success mb-0">
+        <i class="bi bi-activity me-2"></i> Task Performance Trends
+      </h5>
+    </div>
+    <div class="card-body p-4">
+      <div class="bg-white rounded-3 shadow-sm p-3">
+        <div class="position-relative" style="height: 300px;">
+          <canvas id="task_chart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= SECTION: MATERNAL & CHILD HEALTH ================= -->
+  <div class="card glass border-0 mb-5 fade-in-up" style="animation-delay: 0.3s;">
+    <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0">
+      <h5 class="fw-bold text-info mb-0">
+        <i class="bi bi-heart-pulse-fill me-2"></i> Maternal & Child Health
+      </h5>
+    </div>
+    <div class="card-body p-4">
+      <div class="row g-4">
+        <div class="col-md-6">
+          <div class="p-3 bg-white rounded-3 shadow-sm h-100">
+            <h6 class="text-muted small text-uppercase fw-bold mb-3">Pregnant Women Age Distribution</h6>
+            <div class="position-relative" style="height: 250px;">
+              <canvas id="pw_age_chart"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="p-3 bg-white rounded-3 shadow-sm h-100">
+            <h6 class="text-muted small text-uppercase fw-bold mb-3">TT Vaccination Coverage</h6>
+            <div class="position-relative" style="height: 250px;">
+              <canvas id="tt_chart"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="p-3 bg-white rounded-3 shadow-sm h-100">
+            <h6 class="text-muted small text-uppercase fw-bold mb-3">Child Growth Monitoring (Visit Trend)</h6>
+            <div class="position-relative" style="height: 250px;">
+              <canvas id="growth_chart"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="p-3 bg-white rounded-3 shadow-sm h-100">
+            <h6 class="text-muted small text-uppercase fw-bold mb-3">Birth Weight Analysis</h6>
+            <div class="position-relative" style="height: 250px;">
+              <canvas id="birth_weight_chart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= SECTION: HEALTH CONDITIONS ================= -->
+  <div class="card glass border-0 mb-4 fade-in-up" style="animation-delay: 0.4s;">
+    <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0">
+      <h5 class="fw-bold text-warning mb-0">
+        <i class="bi bi-clipboard-pulse me-2"></i> Health Conditions & Follow-ups
+      </h5>
+    </div>
+    <div class="card-body p-4">
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="p-3 bg-white rounded-3 shadow-sm h-100">
+            <h6 class="text-muted small text-uppercase fw-bold mb-3">Blood Sugar Levels</h6>
+            <div class="position-relative" style="height: 250px;">
+              <canvas id="sugar_chart"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-8">
+          <div class="p-3 bg-white rounded-3 shadow-sm h-100">
+            <h6 class="text-muted small text-uppercase fw-bold mb-3">Referrals Overview</h6>
+            <div class="position-relative" style="height: 250px;">
+              <canvas id="referral_chart"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="p-3 bg-white rounded-3 shadow-sm">
+            <h6 class="text-muted small text-uppercase fw-bold mb-3">Follow-up Tracking (Monthly)</h6>
+            <div class="position-relative" style="height: 300px;">
+              <canvas id="followup_chart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}
+
+<!-- ================= CHART JS ================= -->
+{% block scripts %}
+<script>
+  // Common Options for better looking charts
+  Chart.defaults.font.family = "'Inter', system-ui, -apple-system, sans-serif";
+  Chart.defaults.color = '#64748B';
+  Chart.defaults.scale.grid.color = '#F1F5F9';
+  
+  const commonOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: { boxWidth: 12, usePointStyle: true, padding: 20 }
+      }
+    },
+    layout: { padding: 10 }
+  };
+
+  const pw = {{ pw_chart | safe }};
+  new Chart(document.getElementById("pw_chart"), { type: "bar", data: pw, options: commonOptions });
+
+  const child = {{ child_chart | safe }};
+  new Chart(document.getElementById("child_chart"), { type: "doughnut", data: child, options: commonOptions });
+
+  const elderly = {{ elderly_chart | safe }};
+  new Chart(document.getElementById("elderly_chart"), { type: "doughnut", data: elderly, options: commonOptions });
+
+  const gp = {{ gp_chart | safe }};
+  new Chart(document.getElementById("gp_chart"), { type: "bar", data: gp, options: commonOptions });
+
+  const task = {{ task_chart | safe }};
+  new Chart(document.getElementById("task_chart"), { type: "line", data: task, options: { ...commonOptions, elements: { line: { tension: 0.4, fill: true } } } });
+
+  const pwAge = {{ pw_age_chart | safe }};
+  new Chart(document.getElementById("pw_age_chart"), { type: "bar", data: pwAge, options: commonOptions });
+
+  const tt = {{ tt_chart | safe }};
+  new Chart(document.getElementById("tt_chart"), { type: "bar", data: tt, options: commonOptions });
+
+  const growth = {{ growth_chart | safe }};
+  new Chart(document.getElementById("growth_chart"), { type: "line", data: growth, options: { ...commonOptions, elements: { line: { tension: 0.4 } } } });
+
+  const bw = {{ birth_weight_chart | safe }};
+  new Chart(document.getElementById("birth_weight_chart"), { type: "bar", data: bw, options: commonOptions });
+
+  const sugar = {{ sugar_chart | safe }};
+  new Chart(document.getElementById("sugar_chart"), { type: "pie", data: sugar, options: commonOptions });
+
+  const ref = {{ referral_chart | safe }};
+  new Chart(document.getElementById("referral_chart"), { type: "bar", data: ref, options: commonOptions });
+
+  const fu = {{ followup_chart | safe }};
+  new Chart(document.getElementById("followup_chart"), { type: "line", data: fu, options: { ...commonOptions, elements: { line: { tension: 0.4 } } } });
+</script>
+{% endblock %}

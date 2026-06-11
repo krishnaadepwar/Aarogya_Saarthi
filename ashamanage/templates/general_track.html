@@ -1,0 +1,144 @@
+{% extends "asha_base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <div class="mb-4">
+        <h2 class="fw-bold text-secondary"><i class="bi bi-person-lines-fill me-2"></i>General Patient Tracking</h2>
+        <p class="text-muted">Manage health problems, referrals, and outcomes for general patients</p>
+    </div>
+
+    <div class="row">
+        {% for person in persons %}
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-secondary-subtle text-secondary border-0 rounded-top-4 py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-bold">{{ person.name }}</h5>
+                        <span class="badge bg-secondary rounded-pill">General</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-6">
+                            <small class="text-muted d-block">Age / Sex</small>
+                            <span class="fw-semibold">{{ person.age or '-' }} / {{ person.sex or '-' }}</span>
+                        </div>
+                        
+                    </div>
+
+                    <h6 class="fw-bold mb-3">Case Records ({{ person.case_records|length }})</h6>
+                    <div class="list-group list-group-flush mb-4">
+                        {% for record in person.case_records %}
+                        <div class="list-group-item px-0 border-0 border-bottom">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <div class="fw-bold text-dark">{{ record.problem }}</div>
+                                    <div class="small text-muted mt-1">
+                                        Outcome: {{ record.outcome or '-' }}
+                                    </div>
+                                    <div class="small text-muted">{{ record.referral_date or 'No date' }}</div>
+                                </div>
+                                <div class="btn-group">
+                                    <button class="btn btn-sm btn-outline-secondary border-0 rounded-circle" 
+                                            title="Edit"
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#editRecordModal{{ record.id }}">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <form action="{{ url_for('asha.delete_case_record', id=record.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this record?')">
+                                        <button class="btn btn-sm btn-outline-danger border-0 rounded-circle" title="Delete">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Edit Record Modal -->
+                        <div class="modal fade" id="editRecordModal{{ record.id }}" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content border-0 rounded-4">
+                                    <div class="modal-header bg-secondary text-white border-0 rounded-top-4">
+                                        <h5 class="modal-title fw-bold">Edit Case Record: {{ person.name }}</h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <form action="{{ url_for('asha.edit_case_record', id=record.id) }}" method="POST">
+                                        <div class="modal-body p-4">
+                                            <div class="row g-3">
+                                                <div class="col-12">
+                                                    <label class="form-label fw-semibold">Problem / Symptoms</label>
+                                                    <textarea name="problem" class="form-control rounded-3" rows="2" required>{{ record.problem }}</textarea>
+                                                </div>
+                                                
+                                                <div class="col-12">
+                                                    <label class="form-label fw-semibold">Referral Date</label>
+                                                    <input type="date" name="referral_date" class="form-control rounded-3" value="{{ record.referral_date }}">
+                                                </div>
+                                                <div class="col-12">
+                                                    <label class="form-label fw-semibold">Outcome / Treatment</label>
+                                                    <textarea name="outcome" class="form-control rounded-3" rows="2">{{ record.outcome or '' }}</textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer border-0 p-4 pt-0">
+                                            <button type="submit" class="btn btn-secondary w-100 rounded-pill py-2">Update Case Record</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <button class="btn btn-outline-secondary w-100 rounded-pill" type="button" data-bs-toggle="modal" data-bs-target="#recordModal{{ person.id }}">
+                        <i class="bi bi-plus-circle me-2"></i>Add New Case Record
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Record Modal -->
+        <div class="modal fade" id="recordModal{{ person.id }}" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content border-0 rounded-4">
+                    <div class="modal-header bg-secondary text-white border-0 rounded-top-4">
+                        <h5 class="modal-title fw-bold">New Case Record: {{ person.name }}</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form action="{{ url_for('asha.add_case_record', id=person.id) }}" method="POST">
+                        <div class="modal-body p-4">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label fw-semibold">Problem / Symptoms</label>
+                                    <textarea name="problem" class="form-control rounded-3" rows="2" required placeholder="Describe the health issue"></textarea>
+                                </div>
+                                
+                                <div class="col-12">
+                                    <label class="form-label fw-semibold">Referral Date</label>
+                                    <input type="date" name="referral_date" class="form-control rounded-3">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label fw-semibold">Outcome / Treatment</label>
+                                    <textarea name="outcome" class="form-control rounded-3" rows="2" placeholder="Notes on treatment or outcome"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer border-0 p-4 pt-0">
+                            <button type="submit" class="btn btn-secondary w-100 rounded-pill py-2">Save Case Record</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if not persons %}
+    <div class="text-center py-5">
+        <i class="bi bi-people display-1 text-muted opacity-25"></i>
+        <h4 class="text-muted mt-3">No general patients found</h4>
+        <p class="text-muted">Register household members with 'General' category to see them here.</p>
+        <a href="{{ url_for('asha.households') }}" class="btn btn-primary rounded-pill px-4">Go to Households</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

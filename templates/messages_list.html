@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container py-4 fade-in-up">
+  
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+
+      <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-md-between mb-4">
+        <div class="d-flex align-items-center gap-3">
+          <div class="bg-gradient-primary text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 48px; height: 48px; font-weight: 700;">
+            <i class="bi bi-chat-dots"></i>
+          </div>
+          <div>
+            <h4 class="fw-bold mb-1 text-dark">Messages</h4>
+            <p class="text-muted small mb-0">
+              {% if current_user.role == 'patient' %}
+                Conversations with ASHA workers
+              {% else %}
+                Conversations with patients and ASHA workers
+              {% endif %}
+            </p>
+          </div>
+        </div>
+        <div class="d-flex align-items-center gap-2 mt-3 mt-md-0">
+          <span class="badge bg-primary-subtle text-primary rounded-pill px-3">
+            {{ users|length if users else 0 }} Chats
+          </span>
+          {% if current_user.role == 'asha' %}
+          <a href="{{ url_for('chat.broadcast_message') }}" class="btn btn-outline-primary rounded-pill px-3 shadow-sm">
+            <i class="bi bi-megaphone me-1"></i> Broadcast
+          </a>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="card glass border-0 shadow-sm mb-3">
+        <div class="card-body">
+          <div class="row g-3 align-items-center">
+            <div class="col-md-8">
+              <div class="input-group">
+                <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                <input id="messageSearch" class="form-control border-start-0 ps-0" placeholder="Search by name or role...">
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="d-flex gap-2 justify-content-md-end">
+                {% if current_user.role == 'patient' %}
+                  <button class="btn btn-primary border rounded-pill px-3" data-filter="asha">ASHAs</button>
+                {% else %}
+                  <button class="btn btn-light border rounded-pill px-3" data-filter="all">All</button>
+                  <button class="btn btn-light border rounded-pill px-3" data-filter="patient">Patients</button>
+                  <button class="btn btn-light border rounded-pill px-3" data-filter="asha">ASHAs</button>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {% if users %}
+      <div class="card glass border-0 shadow-sm overflow-hidden">
+        <div class="list-group list-group-flush" id="chatList">
+
+          {% for u in users %}
+          <a href="{{ url_for('chat.chat', user_id=u.id) }}" class="list-group-item list-group-item-action p-4 border-0 border-bottom chat-item" data-role="{{ u.role }}">
+            <div class="d-flex align-items-center justify-content-between">
+              
+              <!-- User Info -->
+              <div class="d-flex align-items-center">
+                <div class="position-relative me-3">
+                  <div class="bg-gradient-primary text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 50px; height: 50px; font-size: 1.2rem; font-weight: bold;">
+                    {{ u.username[0] | upper }}
+                  </div>
+                  {% if unread_counts and u.id in unread_counts %}
+                  <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-white">
+                    {{ unread_counts[u.id] }}
+                    <span class="visually-hidden">unread messages</span>
+                  </span>
+                  {% endif %}
+                </div>
+                
+                <div>
+                  <h6 class="fw-bold text-dark mb-1">
+                    {% if user_profiles and u.id in user_profiles %}
+                      {{ user_profiles[u.id].name }}
+                    {% else %}
+                      {{ u.username }}
+                    {% endif %}
+                  </h6>
+                  <div class="d-flex align-items-center gap-2">
+                    <span class="badge rounded-pill 
+                      {% if u.role == 'patient' %}bg-info-subtle text-info
+                      {% elif u.role == 'asha' %}bg-success-subtle text-success
+                      {% else %}bg-secondary-subtle text-secondary{% endif %}">
+                      {{ u.role|capitalize }}
+                    </span>
+                    <!-- {% if user_profiles and u.id in user_profiles and user_profiles[u.id].area %}
+                      <span class="text-muted small">
+                        <i class="bi bi-geo-alt me-1"></i>{{ user_profiles[u.id].area }}
+                      </span>
+                    {% endif %} -->
+                  </div>
+                </div>
+              </div>
+
+              <!-- Icon -->
+              <div class="text-muted">
+                <i class="bi bi-chevron-right"></i>
+              </div>
+
+            </div>
+          </a>
+          {% endfor %}
+
+        </div>
+      </div>
+      {% else %}
+        <div class="text-center py-5">
+          <div class="bg-light rounded-circle p-4 d-inline-block mb-3">
+            <i class="bi bi-chat-square-text text-muted display-4"></i>
+          </div>
+          <h5 class="fw-bold text-dark">No Messages Yet</h5>
+          <p class="text-muted">Start a conversation to see it here.</p>
+        </div>
+      {% endif %}
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const input = document.getElementById('messageSearch');
+  const items = Array.from(document.querySelectorAll('#chatList .chat-item'));
+  const filterButtons = document.querySelectorAll('[data-filter]');
+  let activeFilter = '{{ "asha" if current_user.role == "patient" else "all" }}';
+
+  function applyFilter() {
+    const q = (input?.value || '').trim().toLowerCase();
+    items.forEach(el => {
+      const role = el.getAttribute('data-role');
+      const text = el.innerText.toLowerCase();
+      const roleMatch = activeFilter === 'all' || role === activeFilter;
+      const textMatch = !q || text.includes(q);
+      el.style.display = roleMatch && textMatch ? '' : 'none';
+    });
+  }
+
+  input?.addEventListener('input', applyFilter);
+  filterButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeFilter = btn.getAttribute('data-filter');
+      filterButtons.forEach(b => b.classList.remove('btn-primary'));
+      filterButtons.forEach(b => b.classList.add('btn-light'));
+      btn.classList.remove('btn-light');
+      btn.classList.add('btn-primary');
+      applyFilter();
+    });
+  });
+  
+  applyFilter();
+</script>
+
+{% endblock %}

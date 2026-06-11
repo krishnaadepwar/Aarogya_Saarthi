@@ -1,0 +1,107 @@
+.disease-card {
+  display: block;
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 18px;
+  text-align: center;
+  text-decoration: none;
+  color: inherit;
+  height: 100%;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.disease-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 32px rgba(0,0,0,0.12);
+}
+
+.disease-card .icon {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: auto;
+  color: #fff;
+  font-size: 1.8rem;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.06);
+  border: 1px solid rgba(255,255,255,0.6);
+}
+
+.form-label {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.card {
+  border-radius: 16px;
+}
+
+.form-check-label {
+  font-size: 0.95rem;
+}
+
+.card {
+  border-radius: 16px;
+}
+
+.visual-symptom-card {
+  display: block;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 12px;
+  text-align: center;
+  cursor: pointer;
+  border: 2px solid transparent;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  transition: all 0.2s ease;
+}
+
+.visual-symptom-card input {
+  display: none;
+}
+
+.visual-symptom-card .image-box {
+  height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.visual-symptom-card img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.visual-symptom-card .label-text {
+  margin-top: 10px;
+  font-weight: 500;
+  color: #37474F;
+}
+
+.visual-symptom-card input:checked + .image-box,
+.visual-symptom-card input:checked ~ .label-text {
+  opacity: 1;
+}
+
+.visual-symptom-card:has(input:checked) {
+  border-color: var(--bs-primary);
+  background: var(--primary-light);
+}
+
+.badge {
+  font-size: 0.8rem;
+  padding: 6px 10px;
+  border-radius: 20px;
+}
+
+.card {
+  border-radius: 16px;
+}
+
+ul {
+  padding-left: 18px;
+}

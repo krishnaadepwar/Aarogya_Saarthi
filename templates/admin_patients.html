@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container py-4">
+
+  <!-- ================= PAGE HEADER ================= -->
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 fade-in-up">
+    <div>
+      <h3 class="fw-bold text-dark mb-1">Patient Directory</h3>
+      <p class="text-muted mb-0">
+        Manage and monitor registered patients across all regions
+      </p>
+    </div>
+    <div class="mt-3 mt-md-0">
+      <button class="btn btn-primary">
+        <i class="bi bi-download me-2"></i> Export Report
+      </button>
+    </div>
+  </div>
+
+  <!-- ================= PATIENT TABLE CARD ================= -->
+  <div class="card glass border-0 fade-in-up" style="animation-delay: 0.1s;">
+    <div class="card-body p-0">
+
+      <!-- Toolbar -->
+      <div class="p-4 border-bottom bg-light bg-opacity-50">
+        <div class="row g-3 align-items-center">
+          <div class="col-md-6">
+            <div class="input-group">
+              <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+              <input id="patientSearch" class="form-control border-start-0 ps-0" placeholder="Search patients by name, phone, or area...">
+            </div>
+          </div>
+          <div class="col-md-6 text-md-end">
+            <div class="d-inline-flex align-items-center bg-white rounded-pill px-3 py-2 border shadow-sm">
+              <span class="text-muted small me-2">Total Patients:</span>
+              <span class="fw-bold text-primary">{{ patients|length }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th class="ps-4">Patient Name</th>
+              <th>Age</th>
+              <th>Contact Info</th>
+              <th>Area / Region</th>
+              <th class="text-end pe-4">Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {% for p in patients %}
+            <tr>
+              <td class="ps-4">
+                <div class="d-flex align-items-center">
+                  <div class="avatar-sm bg-primary-subtle text-primary rounded-circle me-3 d-flex align-items-center justify-content-center fw-bold">
+                    {{ p.name[0] | upper }}
+                  </div>
+                  <div>
+                    <div class="fw-bold text-dark">{{ p.name }}</div>
+                    <div class="small text-muted">ID: #{{ p.id }}</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="text-dark">{{ p.age }}</span> <span class="text-muted small">yrs</span>
+              </td>
+              <td>
+                <div class="d-flex align-items-center text-muted">
+                  <i class="bi bi-telephone me-2 small"></i> {{ p.phone }}
+                </div>
+              </td>
+              <td>
+                {% if p.area %}
+                  <span class="badge bg-success-subtle text-success border border-success-subtle">
+                    <i class="bi bi-geo-alt-fill me-1"></i> {{ p.area }}
+                  </span>
+                {% else %}
+                  <span class="text-muted small fst-italic">Not Assigned</span>
+                {% endif %}
+              </td>
+              <td class="text-end pe-4">
+                <a href="{{ url_for('admin.view_patient', id=p.id) }}"
+                   class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                  View Profile
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      
+      {% if not patients %}
+      <div class="text-center py-5">
+        <div class="mb-3 opacity-25">
+          <i class="bi bi-people display-1"></i>
+        </div>
+        <h5 class="text-muted">No patients found</h5>
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const input = document.getElementById("patientSearch");
+  const rows = Array.from(document.querySelectorAll("table tbody tr"));
+  input?.addEventListener("input", () => {
+    const q = input.value.trim().toLowerCase();
+    rows.forEach(r => {
+      const text = r.innerText.toLowerCase();
+      r.style.display = text.includes(q) ? "" : "none";
+    });
+  });
+</script>
+
+{% endblock %}

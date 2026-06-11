@@ -1,0 +1,125 @@
+{% extends "asha_base.html" %}
+{% block content %}
+
+<!-- ================= PAGE HEADER ================= -->
+<div class="mb-4 fade-in-up">
+  <h3 class="fw-bold text-primary mb-1">
+    ASHA Professional Management
+  </h3>
+  <p class="text-muted mb-0">
+    Structured household-wise health tracking and professional modules
+  </p>
+</div>
+
+<!-- ================= PROFESSIONAL STRUCTURE GRID ================= -->
+<div class="row g-4 mb-5 fade-in-up" style="animation-delay: 0.1s;">
+  <!-- Households -->
+  <div class="col-md-4">
+    <a href="{{ url_for('asha.households') }}" class="card glass h-100 text-decoration-none text-dark hover-lift border-0 shadow-sm border-start border-primary border-4">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center mb-3">
+          <div class="bg-primary-subtle text-primary rounded-3 p-3 me-3">
+            <i class="bi bi-house-door-fill h3 mb-0"></i>
+          </div>
+          <div>
+            <h5 class="fw-bold mb-0">Households</h5>
+            <small class="text-muted">Master Register</small>
+          </div>
+        </div>
+        <p class="text-muted small mb-0">Register families and link members to households for organized tracking.</p>
+      </div>
+    </a>
+  </div>
+
+  <!-- Pregnancy Track -->
+  <div class="col-md-4">
+    <a href="{{ url_for('asha.pregnancy_track') }}" class="card glass h-100 text-decoration-none text-dark hover-lift border-0 shadow-sm border-start border-danger border-4">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center mb-3">
+          <div class="bg-danger-subtle text-danger rounded-3 p-3 me-3">
+            <i class="bi bi-heart-fill h3 mb-0"></i>
+          </div>
+          <div>
+            <h5 class="fw-bold mb-0">ANC Tracker</h5>
+            <small class="text-muted">Pregnancy Module</small>
+          </div>
+        </div>
+        <p class="text-muted small mb-0">Track unlimited ANC visits, BP, Hb, and TT doses for pregnant women.</p>
+      </div>
+    </a>
+  </div>
+
+  <!-- Child Track -->
+  <div class="col-md-4">
+    <a href="{{ url_for('asha.child_track') }}" class="card glass h-100 text-decoration-none text-dark hover-lift border-0 shadow-sm border-start border-info border-4">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center mb-3">
+          <div class="bg-info-subtle text-info rounded-3 p-3 me-3">
+            <i class="bi bi-person-hearts h3 mb-0"></i>
+          </div>
+          <div>
+            <h5 class="fw-bold mb-0">Child Growth</h5>
+            <small class="text-muted">Child Module</small>
+          </div>
+        </div>
+        <p class="text-muted small mb-0">Manage growth records, weight tracking and health visits for newborns.</p>
+      </div>
+    </a>
+  </div>
+
+  <!-- Elderly Track -->
+  <div class="col-md-4">
+    <a href="{{ url_for('asha.elderly_track') }}" class="card glass h-100 text-decoration-none text-dark hover-lift border-0 shadow-sm border-start border-warning border-4">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center mb-3">
+          <div class="bg-warning-subtle text-warning-emphasis rounded-3 p-3 me-3">
+            <i class="bi bi-person-badge-fill h3 mb-0"></i>
+          </div>
+          <div>
+            <h5 class="fw-bold mb-0">Senior Care</h5>
+            <small class="text-muted">Elderly Module</small>
+          </div>
+        </div>
+        <p class="text-muted small mb-0">Monitor BP/Sugar trends and chronic conditions for senior citizens.</p>
+      </div>
+    </a>
+  </div>
+
+  <!-- Task Management -->
+  <div class="col-md-4">
+    <a href="{{ url_for('asha.tasks_manage') }}" class="card glass h-100 text-decoration-none text-dark hover-lift border-0 shadow-sm border-start border-success border-4">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center mb-3">
+          <div class="bg-success-subtle text-success rounded-3 p-3 me-3">
+            <i class="bi bi-calendar-check-fill h3 mb-0"></i>
+          </div>
+          <div>
+            <h5 class="fw-bold mb-0">Daily Tasks</h5>
+            <small class="text-muted">Activity Planner</small>
+          </div>
+        </div>
+        <p class="text-muted small mb-0">Assign tasks to specific persons and track field activity status.</p>
+      </div>
+    </a>
+  </div>
+
+  <!-- General Patients -->
+  <div class="col-md-4">
+    <a href="{{ url_for('asha.general_track') }}" class="card glass h-100 text-decoration-none text-dark hover-lift border-0 shadow-sm border-start border-secondary border-4">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center mb-3">
+          <div class="bg-secondary-subtle text-secondary rounded-3 p-3 me-3">
+            <i class="bi bi-person-lines-fill h3 mb-0"></i>
+          </div>
+          <div>
+            <h5 class="fw-bold mb-0">General Track</h5>
+            <small class="text-muted">General Module</small>
+          </div>
+        </div>
+        <p class="text-muted small mb-0">Track health problems, referrals, and outcomes for general patients.</p>
+      </div>
+    </a>
+  </div>
+</div>
+
+{% endblock %}

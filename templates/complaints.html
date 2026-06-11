@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container py-4">
+
+  <!-- ================= HEADER ================= -->
+  <div class="row align-items-center mb-5">
+    <div class="col-md-8">
+      <h2 class="fw-bold text-primary mb-2">
+        <i class="bi bi-chat-square-heart me-2"></i>Complaints & Feedback
+      </h2>
+      <p class="text-muted fs-5 mb-0">
+        We value your feedback. Submit issues or suggestions, and we'll resolve them promptly.
+      </p>
+    </div>
+    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+      <button class="btn btn-primary px-4 py-2" type="button" data-bs-toggle="collapse" data-bs-target="#complaintForm" aria-expanded="false" aria-controls="complaintForm">
+        <i class="bi bi-plus-lg me-2"></i>New Complaint
+      </button>
+    </div>
+  </div>
+
+  <!-- ================= SUBMIT COMPLAINT FORM (Collapsible) ================= -->
+  <div class="collapse mb-5 show" id="complaintForm">
+    <div class="card glass border-0 overflow-hidden fade-in-up">
+      <div class="card-header bg-gradient-primary text-white p-3 border-0">
+        <h5 class="mb-0"><i class="bi bi-pencil-fill me-2"></i>Submit a New Complaint</h5>
+      </div>
+      <div class="card-body p-4 bg-white bg-opacity-50">
+        <form method="post">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <div class="row g-3">
+            <div class="col-md-12">
+              <div class="form-floating">
+                <input type="text" class="form-control bg-white" id="title" name="title" placeholder="Complaint Title" required>
+                <label for="title">Subject / Title</label>
+              </div>
+            </div>
+            <div class="col-md-12">
+              <div class="form-floating">
+                <textarea class="form-control bg-white" placeholder="Describe the issue here" id="description" name="description" style="height: 150px" required></textarea>
+                <label for="description">Detailed Description</label>
+              </div>
+            </div>
+            <div class="col-12 text-end">
+              <button class="btn btn-lg btn-primary px-5 shadow-sm" type="submit">
+                <i class="bi bi-send-fill me-2"></i>Submit
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= COMPLAINT HISTORY ================= -->
+  <div class="mb-4 d-flex align-items-center justify-content-between">
+    <h4 class="fw-bold text-dark mb-0">
+      <i class="bi bi-clock-history me-2"></i>History
+    </h4>
+    <span class="badge bg-light text-secondary border rounded-pill px-3 py-2">
+      {{ complaints|length }} Records
+    </span>
+  </div>
+
+  {% if complaints %}
+  <div class="row g-4">
+    {% for c in complaints %}
+    <div class="col-md-6 col-xl-4">
+      <div class="card h-100 shadow-sm border-0 hover-shadow transition-all">
+        <div class="card-body p-4 d-flex flex-column">
+          
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div class="d-flex align-items-center gap-2">
+              {% if c.admin_reply %}
+                <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3">
+                  <i class="bi bi-check-circle-fill me-1"></i> Resolved
+                </span>
+              {% else %}
+                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-3">
+                  <i class="bi bi-hourglass-split me-1"></i> Pending
+                </span>
+              {% endif %}
+            </div>
+            <small class="text-muted fw-medium">
+              {{ c.created_at.strftime('%d %b, %Y') }}
+            </small>
+          </div>
+
+          <h5 class="card-title fw-bold text-primary mb-2">{{ c.title }}</h5>
+          <p class="card-text text-secondary mb-4 flex-grow-1 text-truncate-3">
+            {{ c.description }}
+          </p>
+
+          {% if c.admin_reply %}
+            <div class="mt-auto bg-light rounded-3 p-3 border-start border-4 border-success">
+              <small class="text-uppercase text-success fw-bold d-block mb-1">
+                Admin Response
+              </small>
+              <p class="mb-0 text-dark small">
+                {{ c.admin_reply }}
+              </p>
+              <div class="text-end mt-2">
+                <small class="text-muted fst-italic" style="font-size: 0.75rem;">
+                  {{ c.replied_at.strftime('%H:%M %p') }}
+                </small>
+              </div>
+            </div>
+          {% else %}
+            <div class="mt-auto p-3 rounded-3 bg-light text-center border border-dashed">
+              <small class="text-muted">
+                <i class="bi bi-info-circle me-1"></i> Awaiting response from admin
+              </small>
+            </div>
+          {% endif %}
+
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="text-center py-5">
+    <div class="mb-3">
+      <i class="bi bi-emoji-smile text-muted display-1"></i>
+    </div>
+    <h4 class="text-muted">No complaints yet</h4>
+    <p class="text-secondary">If you have any issues, please submit a complaint above.</p>
+  </div>
+  {% endif %}
+
+</div>
+
+<style>
+  .hover-shadow:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+  }
+  .transition-all {
+    transition: all 0.3s ease;
+  }
+  .text-truncate-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .bg-success-subtle { background-color: #d1e7dd !important; }
+  .bg-warning-subtle { background-color: #fff3cd !important; }
+</style>
+
+{% endblock %}

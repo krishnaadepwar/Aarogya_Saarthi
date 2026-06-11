@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container py-4 fade-in-up h-100 d-flex flex-column" style="max-height: calc(100vh - 80px);">
+
+  <!-- Header -->
+  <div class="d-flex align-items-center justify-content-between mb-3 bg-white p-3 rounded-4 shadow-sm border">
+    <div class="d-flex align-items-center">
+      <a href="{{ url_for('chat.messages') }}" class="btn btn-light rounded-circle me-3 text-muted">
+        <i class="bi bi-arrow-left"></i>
+      </a>
+      <div class="bg-gradient-primary text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm me-3" style="width: 45px; height: 45px; font-weight: bold;">
+        {% if other_profile and other_profile.name %}
+          {{ other_profile.name[0] | upper }}
+        {% else %}
+          {{ other_user.username[0] | upper }}
+        {% endif %}
+      </div>
+      <div>
+        <h6 class="fw-bold mb-0 text-dark">
+          {% if other_profile and other_profile.name %}
+            {{ other_profile.name }}
+          {% else %}
+            {{ other_user.username }}
+          {% endif %}
+        </h6>
+        <!-- <div class="d-flex align-items-center gap-2">
+          <small class="text-muted">{{ other_user.role|capitalize }}</small>
+          {% if other_profile and other_profile.area %}
+            <small class="text-muted">• <i class="bi bi-geo-alt me-1"></i>{{ other_profile.area }}</small>
+          {% endif %}
+        </div> -->
+      </div>
+    </div>
+    
+    <div class="d-flex align-items-center gap-2">
+      {% if current_user.role == "patient" %}
+      <form action="{{ url_for('emergency.emergency_alert') }}" method="POST">
+        <button type="submit" class="btn btn-danger btn-sm rounded-pill px-3 shadow-sm" onclick="return confirm('Are you sure you want to send an emergency alert?')">
+          <i class="bi bi-exclamation-circle me-1"></i> SOS
+        </button>
+      </form>
+      {% else %}
+      <a href="{{ url_for('chat.broadcast_message') }}" class="btn btn-outline-primary btn-sm rounded-pill px-3 shadow-sm">
+        <i class="bi bi-megaphone me-1"></i> Broadcast
+      </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Chat Area -->
+  <div class="card glass border-0 shadow-sm flex-grow-1 overflow-hidden d-flex flex-column">
+    
+    <!-- Messages Box -->
+    <div id="chat-box" class="card-body p-4 overflow-auto flex-grow-1" style="background: rgba(255,255,255,0.5);">
+      
+      {% for m in messages %}
+        {% if m.sender_id == current_user.id %}
+          <!-- SENT -->
+          <div class="chat-message sent mb-3 d-flex flex-column align-items-end">
+            <div class="chat-bubble bg-gradient-primary text-white shadow-sm p-3 rounded-4 rounded-br-0" style="border-bottom-right-radius: 4px; max-width: 75%;">
+              {{ m.message }}
+            </div>
+            <small class="text-muted mt-1" style="font-size: 0.7rem;">You</small>
+          </div>
+        {% else %}
+          <!-- RECEIVED -->
+          <div class="chat-message received mb-3 d-flex flex-column align-items-start">
+            <div class="chat-bubble bg-white text-dark border shadow-sm p-3 rounded-4 rounded-bl-0" style="border-bottom-left-radius: 4px; max-width: 75%;">
+              {{ m.message }}
+            </div>
+            <small class="text-muted mt-1" style="font-size: 0.7rem;">
+              {% if other_profile and other_profile.name %}
+                {{ other_profile.name }} ({{ other_user.role|capitalize }})
+              {% else %}
+                {{ other_user.username }} ({{ other_user.role|capitalize }})
+              {% endif %}
+            </small>
+          </div>
+        {% endif %}
+      {% endfor %}
+
+    </div>
+
+    <!-- Input Area -->
+    <div class="card-footer bg-white border-0 p-3">
+      <form onsubmit="sendMessage(); return false;" class="d-flex gap-2" id="chat-form" method="POST">
+        <input id="msg"
+               name="message"
+               type="text"
+               class="form-control form-control-lg border-0 bg-light rounded-pill px-4"
+               placeholder="Type your message..."
+               required
+               style="box-shadow: none;">
+        <button class="btn btn-primary rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+          <i class="bi bi-send-fill"></i>
+        </button>
+      </form>
+    </div>
+
+  </div>
+
+</div>
+
+{% endblock %}
+
+<!-- Chat Logic -->
+{% block scripts %}
+<script>
+  // Use global socket instance from base.html
+  const chatBox = document.getElementById("chat-box");
+  const input = document.getElementById("msg");
+
+  const room = "{{ room }}";
+  if (typeof socket !== 'undefined') {
+    socket.emit("join", { room: room });
+
+    socket.on("receive_message", data => {
+      const isMe = data.sender_id === {{ current_user.id }};
+      
+      const wrapper = document.createElement("div");
+      wrapper.classList.add("chat-message", "mb-3", "d-flex", "flex-column");
+      
+      if (isMe) {
+        wrapper.classList.add("align-items-end", "sent");
+        wrapper.innerHTML = `
+          <div class="chat-bubble bg-gradient-primary text-white shadow-sm p-3 rounded-4" style="border-bottom-right-radius: 4px; max-width: 75%;">
+            ${data.message}
+          </div>
+          <small class="text-muted mt-1" style="font-size: 0.7rem;">You</small>
+        `;
+      } else {
+        wrapper.classList.add("align-items-start", "received");
+        wrapper.innerHTML = `
+          <div class="chat-bubble bg-white text-dark border shadow-sm p-3 rounded-4" style="border-bottom-left-radius: 4px; max-width: 75%;">
+            ${data.message}
+          </div>
+          <small class="text-muted mt-1" style="font-size: 0.7rem;">
+            {% if other_profile and other_profile.name %}
+              {{ other_profile.name }} ({{ other_user.role|capitalize }})
+            {% else %}
+              {{ other_user.username }} ({{ other_user.role|capitalize }})
+            {% endif %}
+          </small>
+        `;
+      }
+
+      chatBox.appendChild(wrapper);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    });
+  }
+
+  // Scroll to bottom on load
+  chatBox.scrollTop = chatBox.scrollHeight;
+
+  function sendMessage() {
+    const message = input.value.trim();
+    if (!message) return;
+
+    if (typeof socket !== 'undefined' && socket.connected) {
+      socket.emit("send_message", {
+        sender_id: {{ current_user.id }},
+        receiver_id: {{ other_user.id }},
+        sender_role: "{{ current_user.role }}",
+        message: message,
+        room: room
+      });
+      input.value = "";
+    } else {
+      // Fallback: If socket is not available, submit the form normally
+      document.getElementById("chat-form").submit();
+    }
+  }
+</script>
+{% endblock %}

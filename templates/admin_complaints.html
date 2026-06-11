@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container-fluid py-4">
+
+  <!-- ================= HEADER ================= -->
+  <div class="row mb-4 align-items-end">
+    <div class="col-md-8">
+      <h2 class="fw-bold text-primary mb-2">
+        <i class="bi bi-shield-check me-2"></i>Complaints Management
+      </h2>
+      <p class="text-muted fs-5 mb-0">
+        Review, track, and respond to user complaints effectively.
+      </p>
+    </div>
+    <div class="col-md-4 text-md-end">
+      <button class="btn btn-outline-primary" onclick="window.print()">
+        <i class="bi bi-printer me-2"></i>Print Report
+      </button>
+    </div>
+  </div>
+
+  <!-- ================= STATS CARDS ================= -->
+  {% set pending_count = complaints | selectattr('admin_reply', 'none') | list | length %}
+  {% set resolved_count = complaints | selectattr('admin_reply') | list | length %}
+  
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm bg-primary text-white h-100">
+        <div class="card-body d-flex align-items-center justify-content-between">
+          <div>
+            <h6 class="text-uppercase mb-1 opacity-75">Total Complaints</h6>
+            <h2 class="display-6 fw-bold mb-0">{{ complaints|length }}</h2>
+          </div>
+          <i class="bi bi-folder2-open fs-1 opacity-50"></i>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm bg-warning text-dark h-100">
+        <div class="card-body d-flex align-items-center justify-content-between">
+          <div>
+            <h6 class="text-uppercase mb-1 opacity-75">Pending Action</h6>
+            <h2 class="display-6 fw-bold mb-0">{{ pending_count }}</h2>
+          </div>
+          <i class="bi bi-hourglass-split fs-1 opacity-50"></i>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm bg-success text-white h-100">
+        <div class="card-body d-flex align-items-center justify-content-between">
+          <div>
+            <h6 class="text-uppercase mb-1 opacity-75">Resolved</h6>
+            <h2 class="display-6 fw-bold mb-0">{{ resolved_count }}</h2>
+          </div>
+          <i class="bi bi-check-circle fs-1 opacity-50"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= COMPLAINT TABLE ================= -->
+  <div class="card glass border-0 overflow-hidden shadow-lg fade-in-up" style="animation-delay: 0.1s;">
+    <div class="card-header bg-white bg-opacity-75 py-3 border-0 d-flex justify-content-between align-items-center">
+      <h5 class="mb-0 fw-bold text-dark">All Complaints</h5>
+      <div class="input-group w-auto">
+        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+        <input type="text" class="form-control bg-white border-start-0 ps-0" placeholder="Search..." onkeyup="searchTable(this)">
+      </div>
+    </div>
+    
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0" id="complaintsTable">
+          <thead>
+            <tr>
+              <th class="ps-4">Name</th>
+              <th>Role</th>
+              <th>Subject</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th class="text-end pe-4">Action</th>
+            </tr>
+          </thead>
+
+          <tbody class="border-top-0">
+            {% for c in complaints %}
+            <tr>
+
+              <td class="ps-4">
+                <div class="d-flex align-items-center">
+                  <div class="avatar-sm bg-primary-subtle text-primary rounded-circle me-3 d-flex align-items-center justify-content-center fw-bold" style="width: 35px; height: 35px;">
+                    {{ (c.user_name or 'U')[:1] }}
+                  </div>
+                  <div>
+                    <span class="d-block fw-semibold text-dark">{{ c.user_name or ('User #' ~ c.user_id) }}</span>
+                  </div>
+                </div>
+              </td>
+
+              <td>
+                <span class="badge rounded-pill px-3 py-2
+                  {% if c.role == 'patient' %}bg-info-subtle text-info-emphasis
+                  {% elif c.role == 'asha' %}bg-success-subtle text-success-emphasis
+                  {% else %}bg-secondary-subtle text-secondary-emphasis{% endif %}">
+                  {{ c.role|capitalize }}
+                </span>
+              </td>
+
+              <td>
+                <span class="d-inline-block text-truncate" style="max-width: 200px;">
+                  {{ c.title }}
+                </span>
+              </td>
+
+              <td class="text-muted small">
+                <i class="bi bi-calendar3 me-1"></i> {{ c.created_at.strftime('%d %b %Y') }}
+              </td>
+
+              <td>
+                {% if c.admin_reply %}
+                  <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill">
+                    <i class="bi bi-check-circle-fill me-1"></i> Replied
+                  </span>
+                {% else %}
+                  <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill">
+                    <i class="bi bi-exclamation-circle-fill me-1"></i> Pending
+                  </span>
+                {% endif %}
+              </td>
+
+              <td class="text-end pe-4">
+                <a href="{{ url_for('admin.view_complaint', id=c.id) }}"
+                   class="btn btn-sm {% if c.admin_reply %}btn-outline-secondary{% else %}btn-primary{% endif %} rounded-pill px-3">
+                  {% if c.admin_reply %}
+                    <i class="bi bi-eye me-1"></i> View
+                  {% else %}
+                    <i class="bi bi-reply-fill me-1"></i> Update Reply
+                  {% endif %}
+                </a>
+              </td>
+
+            </tr>
+            {% endfor %}
+          </tbody>
+
+        </table>
+      </div>
+    </div>
+    
+    {% if not complaints %}
+    <div class="text-center py-5">
+      <p class="text-muted">No complaints found.</p>
+    </div>
+    {% endif %}
+    
+  </div>
+</div>
+
+<script>
+function searchTable(input) {
+  var filter = input.value.toUpperCase();
+  var table = document.getElementById("complaintsTable");
+  var tr = table.getElementsByTagName("tr");
+  for (var i = 1; i < tr.length; i++) {
+    var td = tr[i].textContent || tr[i].innerText;
+    if (td.toUpperCase().indexOf(filter) > -1) {
+      tr[i].style.display = "";
+    } else {
+      tr[i].style.display = "none";
+    }
+  }
+}
+</script>
+
+<style>
+  .table-hover tbody tr:hover {
+    background-color: rgba(21, 101, 192, 0.02);
+  }
+</style>
+
+{% endblock %}

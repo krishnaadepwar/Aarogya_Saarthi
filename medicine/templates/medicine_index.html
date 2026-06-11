@@ -1,0 +1,288 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- ================= PAGE HEADER ================= -->
+<div class="mb-4 text-center fade-in-up">
+  <h3 class="fw-bold text-primary mb-1">
+    Medicine Checker
+  </h3>
+  <p class="text-muted mb-0">
+    Check medicine information and expiry using image or manual input
+  </p>
+</div>
+
+<!-- ================= MAIN ACTIONS ================= -->
+<div class="row g-4 fade-in-up" style="animation-delay: 0.1s;">
+
+  <!-- IMAGE UPLOAD -->
+  <div class="col-md-6">
+    <div class="card glass shadow-lg border-0 h-100">
+      <div class="card-body p-4">
+
+        <div class="d-flex align-items-center mb-4">
+          <div class="bg-primary-subtle text-primary rounded-circle p-3 me-3">
+            <i class="bi bi-camera fs-3"></i>
+          </div>
+          <h5 class="fw-bold mb-0">Upload Medicine Image</h5>
+        </div>
+
+        <p class="text-muted mb-4">
+          Upload a photo of a medicine strip or box to automatically extract expiry date and other details.
+        </p>
+
+        <form action="{{ url_for('medicine.analyze') }}"
+              method="post"
+              enctype="multipart/form-data">
+
+          <div class="mb-4">
+            <label class="form-label fw-semibold text-secondary small text-uppercase">Select Image</label>
+            <input type="file"
+                   name="image"
+                   accept="image/*"
+                   required
+                   class="form-control form-control-lg">
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100 py-2 fw-bold shadow-sm">
+            <i class="bi bi-search me-2"></i>
+            Analyze Image
+          </button>
+
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- MANUAL EXPIRY -->
+  <div class="col-md-6">
+    <div class="card glass shadow-lg border-0 h-100">
+      <div class="card-body p-4">
+
+        <div class="d-flex align-items-center mb-4">
+          <div class="bg-primary-subtle text-primary rounded-circle p-3 me-3">
+            <i class="bi bi-calendar-event fs-3"></i>
+          </div>
+          <h5 class="fw-bold mb-0">Manual Expiry Check</h5>
+        </div>
+
+        <p class="text-muted mb-4">
+          Enter an expiry date printed on the medicine (e.g., 09/2025) to check if it's safe to use.
+        </p>
+
+        <form id="manual-form" class="mb-3">
+          <div class="mb-4">
+             <label class="form-label fw-semibold text-secondary small text-uppercase">Expiry Date</label>
+             <input type="text"
+                    name="date"
+                    class="form-control form-control-lg"
+                    placeholder="e.g. 09/2025 or 15-09-2025"
+                    required>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100 py-2 fw-bold shadow-sm">
+            <i class="bi bi-check-circle me-2"></i>
+            Check Expiry
+          </button>
+        </form>
+
+        <div id="manual-output" class="alert alert-info small d-none fade-in-up"></div>
+
+        <div class="d-grid gap-2">
+           <button id="manual-speak-btn"
+                   class="btn btn-outline-primary btn-sm mt-2">
+             <i class="bi bi-volume-up me-1"></i>
+             Speak Result
+           </button>
+           <audio id="manual-tts-audio" controls class="w-100 mt-2"></audio>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ================= FLASH ERRORS ================= -->
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div class="alert alert-danger mt-4">
+      <ul class="mb-0">
+        {% for msg in messages %}
+          <li>{{ msg }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+{% endwith %}
+
+<!-- ================= IMAGE PREVIEW ================= -->
+{% if image_data %}
+<div class="card glass border-0 mt-4 fade-in-up" style="animation-delay: 0.2s;">
+  <div class="card-body text-center p-4">
+    <h6 class="fw-bold text-secondary mb-3 text-uppercase small letter-spacing-1">Uploaded Image Preview</h6>
+    <div class="p-2 bg-white rounded-3 shadow-sm d-inline-block">
+      <img src="{{ image_data }}"
+           alt="Uploaded medicine"
+           class="img-fluid rounded"
+           style="max-height:300px;">
+    </div>
+  </div>
+</div>
+{% endif %}
+
+
+<!-- ================= AI RESPONSE ================= -->
+{% if assistant_content %}
+<div class="card glass border-0 mt-4 fade-in-up" style="animation-delay: 0.4s;">
+  <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0">
+    <div class="d-flex justify-content-between align-items-center">
+      <h5 class="fw-bold text-primary mb-0">
+        <i class="bi bi-robot me-2"></i>Medicine Analysis
+      </h5>
+      
+    </div>
+  </div>
+  <div class="card-body p-4">
+
+    <div class="bg-white p-4 rounded-3 shadow-sm border-start border-4 border-primary">
+      <pre id="assistant-pre" class="mb-0 small text-dark" style="white-space: pre-wrap; font-family: var(--bs-body-font-family);">{{ assistant_content }}</pre>
+    </div>
+
+    
+  </div>
+</div>
+{% endif %}
+
+<!-- ================= REASONING (OPTIONAL) ================= -->
+{% if reasoning_details %}
+<div class="card glass border-0 mt-4 fade-in-up" style="animation-delay: 0.5s;">
+  <div class="card-body p-4">
+    <h6 class="fw-bold text-secondary mb-3 text-uppercase small letter-spacing-1">
+      <i class="bi bi-gear-fill me-2"></i>Technical Details
+    </h6>
+    <div class="accordion" id="accordionReasoning">
+      <div class="accordion-item border-0 bg-transparent">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed bg-light rounded-3 shadow-sm" type="button" data-bs-toggle="collapse" data-bs-target="#collapseReasoning">
+            View Reasoning Process
+          </button>
+        </h2>
+        <div id="collapseReasoning" class="accordion-collapse collapse" data-bs-parent="#accordionReasoning">
+          <div class="accordion-body bg-light mt-2 rounded-3">
+            <pre class="small mb-0">{{ reasoning_details }}</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- ================= DISCLAIMER ================= -->
+<div class="text-center mt-5 fade-in-up" style="animation-delay: 0.6s;">
+  <div class="alert alert-warning d-inline-block shadow-sm border-0 py-2 px-4 rounded-pill">
+    <small class="fw-semibold">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i>
+      This tool provides assistance only. Always verify medicine expiry with a pharmacist.
+    </small>
+  </div>
+</div>
+
+<!-- ================= EXISTING JS (UNCHANGED) ================= -->
+<script>
+  const form = document.getElementById('manual-form');
+  const output = document.getElementById('manual-output');
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const dateValue = form.querySelector('input[name="date"]').value.trim();
+    output.classList.remove('d-none');
+    output.textContent = 'Checking...';
+
+    try {
+      const res = await fetch('/check_manual', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ date: dateValue }).toString()
+      });
+      const json = await res.json();
+      
+      output.innerHTML = json.ok 
+        ? `<i class="bi bi-check-circle-fill text-success me-2"></i>${json.message}`
+        : `<i class="bi bi-exclamation-circle-fill text-danger me-2"></i>${json.error || 'Error'}`;
+        
+      output.className = json.ok 
+        ? 'alert alert-success shadow-sm border-0 fade-in-up' 
+        : 'alert alert-danger shadow-sm border-0 fade-in-up';
+        
+    } catch {
+      output.textContent = 'Network error';
+      output.className = 'alert alert-danger shadow-sm border-0 fade-in-up';
+    }
+  });
+</script>
+
+<script>
+  const speakBtn = document.getElementById('speak-btn');
+  if (speakBtn) {
+    const audioEl = document.getElementById('tts-audio');
+    speakBtn.addEventListener('click', async () => {
+      const text = document.getElementById('assistant-pre')?.textContent.trim();
+      if (!text) return;
+      
+      // Visual feedback
+      const originalHtml = speakBtn.innerHTML;
+      speakBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Loading...';
+      speakBtn.disabled = true;
+      
+      try {
+        const res = await fetch('/tts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({ text })
+        });
+        const blob = await res.blob();
+        audioEl.src = URL.createObjectURL(blob);
+        audioEl.classList.remove('d-none');
+        audioEl.play();
+      } catch (e) {
+        console.error(e);
+      } finally {
+        speakBtn.innerHTML = originalHtml;
+        speakBtn.disabled = false;
+      }
+    });
+  }
+
+  const manualSpeakBtn = document.getElementById('manual-speak-btn');
+  if (manualSpeakBtn) {
+    const manualAudioEl = document.getElementById('manual-tts-audio');
+    manualSpeakBtn.addEventListener('click', async () => {
+      const text = output?.textContent.trim();
+      if (!text) return;
+      
+      const originalHtml = manualSpeakBtn.innerHTML;
+      manualSpeakBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>';
+      manualSpeakBtn.disabled = true;
+      
+      try {
+        const res = await fetch('/tts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({ text })
+        });
+        const blob = await res.blob();
+        manualAudioEl.src = URL.createObjectURL(blob);
+        manualAudioEl.play();
+      } catch (e) {
+        console.error(e);
+      } finally {
+        manualSpeakBtn.innerHTML = originalHtml;
+        manualSpeakBtn.disabled = false;
+      }
+    });
+  }
+</script>
+
+{% endblock %}

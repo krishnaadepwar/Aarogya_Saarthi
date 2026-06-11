@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container py-4">
+
+  <!-- ================= HEADER ================= -->
+  <div class="mb-4 fade-in-up">
+    <a href="{{ url_for('admin.complaints') }}" class="text-decoration-none text-muted mb-2 d-inline-block hover-primary transition-base">
+      <i class="bi bi-arrow-left me-1"></i> Back to Complaints
+    </a>
+    <h3 class="fw-bold text-primary mb-1">Complaint Details #{{ complaint.id }}</h3>
+    <p class="text-muted mb-0">
+      Review and respond to user submitted issues
+    </p>
+  </div>
+
+  <div class="row g-4">
+    
+    <!-- ================= CONVERSATION SECTION (Left) ================= -->
+    <div class="col-lg-8 fade-in-up" style="animation-delay: 0.1s;">
+      
+      <!-- Original Complaint -->
+      <div class="card glass border-0 mb-4 overflow-hidden">
+        <div class="card-header bg-white bg-opacity-75 border-0 py-3 d-flex align-items-center">
+          <div class="avatar bg-primary-subtle text-primary rounded-circle me-3 d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 48px; height: 48px;">
+            {{ (complaint.user_name or 'U')[:1] }}
+          </div>
+          <div>
+            <h6 class="mb-0 fw-bold text-dark">{{ complaint.user_name or ('User #' ~ complaint.user_id) }}</h6>
+            <small class="text-muted">{{ complaint.created_at.strftime('%d %b %Y, %I:%M %p') }}</small>
+          </div>
+          <span class="badge rounded-pill ms-auto px-3 py-2 shadow-sm
+            {% if complaint.role == 'patient' %}bg-info-subtle text-info-emphasis border border-info-subtle
+            {% elif complaint.role == 'asha' %}bg-success-subtle text-success-emphasis border border-success-subtle
+            {% else %}bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle{% endif %}">
+            {{ complaint.role|capitalize }}
+          </span>
+        </div>
+        <div class="card-body pt-2">
+          <h5 class="fw-bold mb-3 text-dark">{{ complaint.title }}</h5>
+          <div class="p-4 bg-light bg-opacity-50 rounded-3 text-secondary border border-light shadow-inner">
+            {{ complaint.description }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Admin Reply Section -->
+      {% if complaint.admin_reply %}
+      <div class="card glass border-0 border-start border-4 border-success mb-4 overflow-hidden">
+        <div class="card-body">
+          <div class="d-flex align-items-center mb-3">
+            <div class="avatar bg-success text-white rounded-circle me-3 d-flex align-items-center justify-content-center shadow-sm" style="width: 40px; height: 40px;">
+              <i class="bi bi-shield-check"></i>
+            </div>
+            <div>
+              <h6 class="mb-0 fw-bold text-success">Admin Response</h6>
+              <small class="text-muted">{{ complaint.replied_at.strftime('%d %b %Y, %I:%M %p') }}</small>
+            </div>
+          </div>
+          <div class="p-3 bg-success-subtle bg-opacity-10 rounded-3 text-dark">
+            {{ complaint.admin_reply }}
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if not complaint.admin_reply %}
+      <!-- Reply Form -->
+      <div class="card glass border-0 overflow-hidden">
+        <div class="card-body">
+          <h6 class="fw-semibold mb-3 d-flex align-items-center text-primary">
+            <i class="bi bi-reply-fill me-2"></i>
+            Send Reply
+          </h6>
+          
+          <form method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="mb-3">
+              <textarea class="form-control bg-light border-0 shadow-inner"
+                        name="admin_reply"
+                        rows="5"
+                        placeholder="Type your official response here..."
+                        style="resize: none;"
+                        required></textarea>
+            </div>
+            <div class="d-flex justify-content-end">
+              <button class="btn btn-primary px-4 shadow-sm">
+                <i class="bi bi-send-fill me-2"></i>
+                Send Reply
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+      {% endif %}
+
+    </div>
+
+    <!-- ================= META INFO (Right) ================= -->
+    <div class="col-lg-4 fade-in-up" style="animation-delay: 0.2s;">
+      <div class="card glass border-0 overflow-hidden">
+        <div class="card-header bg-gradient-primary text-white border-0 fw-bold py-3">
+          <i class="bi bi-info-circle me-2"></i> Ticket Information
+        </div>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item bg-transparent d-flex justify-content-between align-items-center py-3">
+            <span class="text-muted small text-uppercase fw-bold">Status</span>
+            {% if complaint.admin_reply %}
+              <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3">Resolved</span>
+            {% else %}
+              <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-3">Pending</span>
+            {% endif %}
+          </li>
+          <li class="list-group-item bg-transparent d-flex justify-content-between align-items-center py-3">
+            <span class="text-muted small text-uppercase fw-bold">Complaint ID</span>
+            <span class="fw-bold font-monospace">#{{ complaint.id }}</span>
+          </li>
+          <li class="list-group-item bg-transparent d-flex justify-content-between align-items-center py-3">
+            <span class="text-muted small text-uppercase fw-bold">Date</span>
+            <span class="fw-medium">{{ complaint.created_at.strftime('%d %b %Y') }}</span>
+          </li>
+          <li class="list-group-item bg-transparent d-flex justify-content-between align-items-center py-3">
+            <span class="text-muted small text-uppercase fw-bold">User Role</span>
+            <span class="fw-medium text-capitalize">{{ complaint.role }}</span>
+          </li>
+        </ul>
+      </div>
+      
+      <div class="mt-4 text-center opacity-25">
+        <i class="bi bi-headset display-1 text-primary"></i>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<style>
+  .bg-primary-subtle { background-color: #cfe2ff !important; color: #084298 !important; }
+  .bg-success-subtle { background-color: #d1e7dd !important; color: #0f5132 !important; }
+  .bg-info-subtle { background-color: #cff4fc !important; color: #055160 !important; }
+  .bg-warning-subtle { background-color: #fff3cd !important; color: #664d03 !important; }
+  .bg-secondary-subtle { background-color: #e2e3e5 !important; color: #41464b !important; }
+</style>
+
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+  
+  <div class="text-center mb-5 fade-in-up">
+    <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2 mb-3">Welcome</span>
+    <h2 class="display-5 fw-bold mb-3">Select Your Portal</h2>
+    <p class="text-muted lead mx-auto" style="max-width: 600px;">
+      Please choose your role to access the dedicated dashboard and features.
+    </p>
+  </div>
+
+  <div class="row justify-content-center g-4 fade-in-up" style="animation-delay: 0.1s;">
+    
+    <!-- Left Column: Image/Illustration (Optional) or just centering -->
+    <div class="col-md-8 col-lg-6">
+      
+      <div class="card glass shadow-lg border-0 overflow-hidden">
+        <div class="card-body p-0">
+          
+          <div class="row g-0">
+            <!-- Content Side -->
+            <div class="col-12 p-5 text-center">
+              
+              <div class="mb-4">
+                {% if role == 'patient' %}
+                  <div class="d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-circle mb-3 shadow-sm" style="width: 100px; height: 100px;">
+                    <i class="bi bi-person-heart display-4"></i>
+                  </div>
+                  <h3 class="fw-bold mb-1">Patient Portal</h3>
+                  <p class="text-muted">Access health records, consultations, and medicine reminders.</p>
+                {% elif role == 'asha' %}
+                  <div class="d-inline-flex align-items-center justify-content-center bg-success-subtle text-success rounded-circle mb-3 shadow-sm" style="width: 100px; height: 100px;">
+                    <i class="bi bi-person-badge-fill display-4"></i>
+                  </div>
+                  <h3 class="fw-bold mb-1">ASHA Worker</h3>
+                  <p class="text-muted">Manage community health, patient records, and surveys.</p>
+                {% else %}
+                  <div class="d-inline-flex align-items-center justify-content-center bg-secondary-subtle text-secondary rounded-circle mb-3 shadow-sm" style="width: 100px; height: 100px;">
+                    <i class="bi bi-shield-lock-fill display-4"></i>
+                  </div>
+                  <h3 class="fw-bold mb-1">Administrator</h3>
+                  <p class="text-muted">System management, analytics, and oversight.</p>
+                {% endif %}
+              </div>
+
+              <div class="d-grid gap-3 col-lg-8 mx-auto">
+                <a href="{{ url_for('login', role=role) }}" class="btn btn-primary py-3 fw-bold shadow-sm">
+                  <i class="bi bi-box-arrow-in-right me-2"></i> Login to Portal
+                </a>
+                <a href="{{ url_for('auth.register', role=role) }}" class="btn btn-outline-secondary py-3 fw-bold border-2">
+                  <i class="bi bi-person-plus me-2"></i> Create New Account
+                </a>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+  
+  <div class="text-center mt-5 text-muted small fade-in-up" style="animation-delay: 0.2s;">
+    <a href="{{ url_for('home') }}" class="text-decoration-none text-muted hover-primary">
+      <i class="bi bi-arrow-left me-1"></i> Back to Home
+    </a>
+  </div>
+
+</div>
+{% endblock %}

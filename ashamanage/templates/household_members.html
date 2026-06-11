@@ -1,0 +1,201 @@
+{% extends "asha_base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <div class="mb-4">
+        <a href="{{ url_for('asha.households') }}" class="btn btn-link text-decoration-none p-0 mb-3">
+            <i class="bi bi-arrow-left me-1"></i> Back to Households
+        </a>
+        <h2 class="fw-bold text-primary">Household: {{ household.head_name }}</h2>
+        <p class="text-muted"><i class="bi bi-telephone-fill me-1"></i> {{ household.mobile }}</p>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4">Add Family Member</h5>
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Name</label>
+                            <input type="text" name="name" class="form-control rounded-3" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Age</label>
+                            <input type="number" name="age" class="form-control rounded-3" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Sex</label>
+                            <select name="sex" class="form-select rounded-3" required>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Category</label>
+                            <select name="category" id="categorySelect" class="form-select rounded-3" required onchange="toggleExtraFields()">
+                                <option value="normal">Normal</option>
+                                <option value="general">General</option>
+                                <option value="pregnant">Pregnant Woman</option>
+                                <option value="child">Child (0-5 years)</option>
+                                <option value="elderly">Elderly (60+ years)</option>
+                            </select>
+                        </div>
+
+                        <!-- Extra Fields (Dynamic) -->
+                        <div id="pregnantFields" class="category-fields d-none">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">LMP Date</label>
+                                <input type="date" name="lmp_date" class="form-control rounded-3">
+                            </div>
+                        </div>
+
+                        <div id="childFields" class="category-fields d-none">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Birth Date</label>
+                                <input type="date" name="birth_date" class="form-control rounded-3">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Birth Weight (kg)</label>
+                                <input type="number" step="0.1" name="birth_weight" class="form-control rounded-3">
+                            </div>
+                        </div>
+
+                        <div id="elderlyFields" class="category-fields d-none">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Chronic Conditions</label>
+                                <textarea name="chronic_conditions" class="form-control rounded-3" rows="2" placeholder="e.g. Hypertension, Diabetes"></textarea>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 rounded-pill py-2">
+                            <i class="bi bi-person-plus-fill me-2"></i>Add Member
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <script>
+        function toggleExtraFields() {
+            const category = document.getElementById('categorySelect').value;
+            // Hide all
+            document.querySelectorAll('.category-fields').forEach(div => div.classList.add('d-none'));
+            
+            // Show selected
+            if (category === 'pregnant') {
+                document.getElementById('pregnantFields').classList.remove('d-none');
+            } else if (category === 'child') {
+                document.getElementById('childFields').classList.remove('d-none');
+            } else if (category === 'elderly') {
+                document.getElementById('elderlyFields').classList.remove('d-none');
+            }
+        }
+        </script>
+
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="ps-4">Name</th>
+                                    <th>Age/Sex</th>
+                                    <th>Category</th>
+                                    <th class="text-end pe-4">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for member in household.members %}
+                                <tr>
+                                    <td class="ps-4">
+                                        <div class="fw-bold">{{ member.name }}</div>
+                                    </td>
+                                    <td>{{ member.age }}Y / {{ member.sex }}</td>
+                                    <td>
+                                        {% if member.category == 'pregnant' %}
+                                            <span class="badge bg-danger-subtle text-danger rounded-pill px-3">Pregnant</span>
+                                        {% elif member.category == 'child' %}
+                                            <span class="badge bg-info-subtle text-info rounded-pill px-3">Child</span>
+                                        {% elif member.category == 'elderly' %}
+                                            <span class="badge bg-warning-subtle text-warning rounded-pill px-3">Elderly</span>
+                                        {% elif member.category == 'general' %}
+                                            <span class="badge bg-secondary-subtle text-secondary rounded-pill px-3">General</span>
+                                        {% else %}
+                                            <span class="badge bg-success-subtle text-success rounded-pill px-3">Normal</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end pe-4">
+                                        <div class="btn-group me-2">
+                                            <button class="btn btn-sm btn-outline-primary border-0 rounded-circle" 
+                                                    title="Edit Info"
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#editMemberModal{{ member.id }}">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <form action="{{ url_for('asha.delete_member', id=member.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this family member?')">
+                                                <button class="btn btn-sm btn-outline-danger border-0 rounded-circle" title="Delete">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+
+                                        {% if member.category == 'pregnant' %}
+                                            <a href="{{ url_for('asha.pregnancy_track') }}" class="btn btn-sm btn-outline-danger rounded-pill">Track ANC</a>
+                                        {% elif member.category == 'child' %}
+                                            <a href="{{ url_for('asha.child_track') }}" class="btn btn-sm btn-outline-info rounded-pill">Track Growth</a>
+                                        {% elif member.category == 'elderly' %}
+                                            <a href="{{ url_for('asha.elderly_track') }}" class="btn btn-sm btn-outline-warning rounded-pill">Health Check</a>
+                                        {% elif member.category == 'general' %}
+                                            <a href="{{ url_for('asha.general_track') }}" class="btn btn-sm btn-outline-secondary rounded-pill">Track Case</a>
+                                        {% else %}
+                                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill">Normal</a>
+                                        {% endif %}
+
+                                        <!-- Edit Member Modal -->
+                                        <div class="modal fade" id="editMemberModal{{ member.id }}" tabindex="-1">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content border-0 rounded-4 text-start">
+                                                    <div class="modal-header bg-primary text-white border-0 rounded-top-4">
+                                                        <h5 class="modal-title fw-bold">Edit Member: {{ member.name }}</h5>
+                                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                                    </div>
+                                                    <form action="{{ url_for('asha.edit_member', id=member.id) }}" method="POST">
+                                                        <div class="modal-body p-4">
+                                                            <div class="mb-3">
+                                                                <label class="form-label fw-semibold">Name</label>
+                                                                <input type="text" name="name" class="form-control rounded-3" value="{{ member.name }}" required>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label class="form-label fw-semibold">Age</label>
+                                                                <input type="number" name="age" class="form-control rounded-3" value="{{ member.age }}" required>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label class="form-label fw-semibold">Sex</label>
+                                                                <select name="sex" class="form-select rounded-3" required>
+                                                                    <option value="Male" {{ 'selected' if member.sex == 'Male' else '' }}>Male</option>
+                                                                    <option value="Female" {{ 'selected' if member.sex == 'Female' else '' }}>Female</option>
+                                                                    <option value="Other" {{ 'selected' if member.sex == 'Other' else '' }}>Other</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer border-0 p-4 pt-0">
+                                                            <button type="submit" class="btn btn-primary w-100 rounded-pill py-2">Update Info</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

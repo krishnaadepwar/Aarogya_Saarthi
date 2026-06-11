@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center align-items-center" style="min-height: 60vh;">
+    
+    <div class="col-md-6 col-lg-5 col-xl-4">
+      
+      <!-- Register Card -->
+      <div class="card glass shadow-lg border-0 fade-in-up">
+        <div class="card-body p-4 p-md-5">
+          
+          <!-- Header -->
+          <div class="text-center mb-4">
+            <div class="d-inline-flex align-items-center justify-content-center bg-success-subtle text-success rounded-circle mb-3 shadow-sm" style="width: 80px; height: 80px;">
+              <i class="bi bi-person-plus-fill fs-1"></i>
+            </div>
+            <h2 class="fw-bold text-dark mb-1">Create Account</h2>
+            <p class="text-muted small">
+              {% if role %}
+                Join as a new {{ role|capitalize }}
+              {% else %}
+                Register to get started
+              {% endif %}
+            </p>
+          </div>
+
+          <!-- Form -->
+          <form method="post" class="needs-validation" novalidate>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            
+            <div class="form-floating mb-3">
+              <input type="text" class="form-control" id="username" name="username" placeholder="Choose a username" required>
+              <label for="username">Username</label>
+            </div>
+
+            <div class="form-floating mb-4">
+              <input type="password" class="form-control" id="password" name="password" placeholder="Create a password" required>
+              <label for="password">Password</label>
+              <div class="form-text text-muted small mt-2">
+                <i class="bi bi-info-circle me-1"></i> Make it strong and secure
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-success w-100 py-3 mb-3 fw-bold d-flex align-items-center justify-content-center gap-2">
+              <span>Create Account</span>
+              <i class="bi bi-check-lg"></i>
+            </button>
+
+            <div class="text-center">
+              <span class="text-muted small">Already have an account?</span>
+              <a href="{{ url_for('auth.login', role=role) }}" class="text-decoration-none fw-semibold ms-1 text-success">Sign In</a>
+            </div>
+
+          </form>
+        </div>
+      </div>
+
+      <!-- Footer Help -->
+      <div class="text-center mt-4 text-muted small fade-in-up" style="animation-delay: 0.1s;">
+        <i class="bi bi-heart-pulse me-1"></i> Join the Aarogya Saarthi Network
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

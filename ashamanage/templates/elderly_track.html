@@ -1,0 +1,190 @@
+{% extends "asha_base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <div class="mb-4">
+        <h2 class="fw-bold text-warning"><i class="bi bi-person-badge-fill me-2"></i>Elderly Health Monitor</h2>
+        <p class="text-muted">Track BP, Sugar, and chronic conditions for seniors</p>
+    </div>
+
+    <div class="row">
+        {% for profile in elderly %}
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-warning-subtle text-warning-emphasis border-0 rounded-top-4 py-3">
+                    <h5 class="mb-0 fw-bold">
+                        {{ profile.person.name }} ({{ profile.person.age }}Y)
+                        <button class="btn btn-sm btn-link text-warning-emphasis p-0 ms-2" data-bs-toggle="modal" data-bs-target="#editElderlyProfileModal{{ profile.id }}">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+                    </h5>
+                </div>
+
+                <!-- Edit Elderly Profile Modal -->
+                <div class="modal fade" id="editElderlyProfileModal{{ profile.id }}" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content border-0 rounded-4">
+                            <div class="modal-header bg-warning text-dark border-0 rounded-top-4">
+                                <h5 class="modal-title fw-bold">Edit Elderly Profile: {{ profile.person.name }}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <form action="{{ url_for('asha.edit_elderly_profile', id=profile.id) }}" method="POST">
+                                <div class="modal-body p-4">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold">Chronic Conditions</label>
+                                        <textarea name="chronic_conditions" class="form-control rounded-3" rows="3" placeholder="e.g. Hypertension, Diabetes">{{ profile.chronic_conditions or '' }}</textarea>
+                                    </div>
+                                </div>
+                                <div class="modal-footer border-0 p-4 pt-0">
+                                    <button type="submit" class="btn btn-warning w-100 rounded-pill py-2">Update Profile Info</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <small class="text-muted d-block">Chronic Conditions</small>
+                        <p class="fw-semibold mb-0">{{ profile.chronic_conditions or 'None reported' }}</p>
+                    </div>
+
+                    <h6 class="fw-bold mb-3">Health Trend (Last {{ profile.person.health_visits|length }} visits)</h6>
+                    <div class="table-responsive mb-4" style="max-height: 250px;">
+                        <table class="table table-sm table-borderless align-middle small">
+                            <thead class="bg-light sticky-top">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>BP</th>
+                                    <th>Sugar</th>
+                                    <th>Weight</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for visit in profile.person.health_visits|sort(attribute='visit_date', reverse=True) %}
+                                <tr>
+                                    <td class="fw-bold text-dark">{{ visit.visit_date }}</td>
+                                    <td>
+                                        {% if visit.bp %}
+                                            <span>{{ visit.bp }}</span>
+                                        {% else %} - {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if visit.sugar %}
+                                            <span class="{% if visit.sugar > 140 %}text-danger fw-bold{% endif %}">
+                                                {{ visit.sugar }} mg/dL
+                                            </span>
+                                        {% else %} - {% endif %}
+                                    </td>
+                                    <td>{{ visit.weight or '-' }}kg</td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <button class="btn btn-sm btn-link p-0 text-warning me-2" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#editVisitModal{{ visit.id }}">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <form action="{{ url_for('asha.delete_health_visit', id=visit.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this record?')">
+                                                <button class="btn btn-sm btn-link p-0 text-secondary">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Edit Health Visit Modal -->
+                                <div class="modal fade" id="editVisitModal{{ visit.id }}" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content border-0 rounded-4">
+                                            <div class="modal-header bg-warning text-dark border-0 rounded-top-4">
+                                                <h5 class="modal-title fw-bold">Edit Health Check: {{ profile.person.name }}</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <form action="{{ url_for('asha.edit_health_visit', id=visit.id) }}" method="POST">
+                                                <div class="modal-body p-4">
+                                                    <div class="row g-3">
+                                                        <div class="col-6">
+                                                            <label class="form-label fw-semibold">Visit Date</label>
+                                                            <input type="date" name="visit_date" class="form-control rounded-3" value="{{ visit.visit_date }}" required>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <label class="form-label fw-semibold">Weight (kg)</label>
+                                                            <input type="number" step="0.1" name="weight" class="form-control rounded-3" value="{{ visit.weight or '' }}">
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <label class="form-label fw-semibold">Blood Pressure</label>
+                                                            <input type="text" name="bp" class="form-control rounded-3" value="{{ visit.bp or '' }}" placeholder="120/80">
+                                                        </div>
+                                                        <div class="col-12">
+                                                            <label class="form-label fw-semibold">Blood Sugar (mg/dL)</label>
+                                                            <input type="number" step="0.1" name="sugar" class="form-control rounded-3" value="{{ visit.sugar or '' }}" placeholder="100">
+                                                        </div>
+                                                        <div class="col-12">
+                                                            <label class="form-label fw-semibold">Notes</label>
+                                                            <textarea name="notes" class="form-control rounded-3" rows="2">{{ visit.notes or '' }}</textarea>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer border-0 p-4 pt-0">
+                                                    <button type="submit" class="btn btn-warning w-100 rounded-pill py-2">Update Health Record</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <button class="btn btn-outline-warning w-100 rounded-pill" type="button" data-bs-toggle="modal" data-bs-target="#visitModal{{ profile.person.id }}">
+                        <i class="bi bi-plus-circle me-2"></i>Record Health Check
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Health Visit Modal -->
+        <div class="modal fade" id="visitModal{{ profile.person.id }}" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content border-0 rounded-4">
+                    <div class="modal-header bg-warning text-dark border-0 rounded-top-4">
+                        <h5 class="modal-title fw-bold">Health Check: {{ profile.person.name }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form action="{{ url_for('asha.add_health_visit', id=profile.person.id) }}" method="POST">
+                        <div class="modal-body p-4">
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <label class="form-label fw-semibold">Visit Date</label>
+                                    <input type="date" name="visit_date" class="form-control rounded-3" required>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label fw-semibold">Weight (kg)</label>
+                                    <input type="number" step="0.1" name="weight" class="form-control rounded-3">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label fw-semibold">Blood Pressure</label>
+                                    <input type="text" name="bp" class="form-control rounded-3" placeholder="120/80">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label fw-semibold">Blood Sugar (mg/dL)</label>
+                                    <input type="number" step="0.1" name="sugar" class="form-control rounded-3" placeholder="100">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label fw-semibold">Notes</label>
+                                    <textarea name="notes" class="form-control rounded-3" rows="2"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer border-0 p-4 pt-0">
+                            <button type="submit" class="btn btn-warning w-100 rounded-pill py-2">Save Health Record</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

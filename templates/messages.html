@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- ================= PAGE HEADER ================= -->
+<div class="mb-4 fade-in-up">
+  <h3 class="fw-bold text-primary mb-1">Messages</h3>
+  <p class="text-muted mb-0">
+    Secure communication between patients and ASHA workers
+  </p>
+</div>
+
+{% if not connected_user %}
+  <div class="alert alert-danger fade-in-up">
+    <i class="bi bi-exclamation-circle me-1"></i>
+    No connected user found.
+  </div>
+{% else %}
+
+<!-- ================= CHAT PREVIEW ================= -->
+<div class="card glass shadow-lg border-0 mb-4 fade-in-up" style="animation-delay: 0.1s;">
+  <div class="card-body p-4">
+
+    <!-- Chat Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+      <div class="d-flex align-items-center">
+        <div class="bg-gradient-primary text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm me-3" style="width: 48px; height: 48px; font-size: 1.2rem; font-weight: bold;">
+          {{ connected_user.username[0] | upper }}
+        </div>
+        <div>
+          <h6 class="fw-bold text-dark mb-0">
+            {{ connected_user.username }}
+          </h6>
+          <span class="badge rounded-pill bg-secondary-subtle text-secondary small">
+            {{ connected_user.role|capitalize }}
+          </span>
+        </div>
+      </div>
+
+      <a href="{{ url_for('chat.chat', user_id=connected_user.id) }}"
+         class="btn btn-primary shadow-sm rounded-pill px-4">
+        <i class="bi bi-chat-dots me-2"></i> Open Full Chat
+      </a>
+    </div>
+
+    <!-- Messages Preview -->
+    <div class="message-preview-box p-3 rounded-3 bg-light-subtle border" style="max-height: 400px; overflow-y: auto;">
+
+      {% for m in messages %}
+        {% if m.sender_id == current_user.id %}
+          <div class="d-flex flex-column align-items-end mb-3">
+            <div class="bg-primary text-white shadow-sm p-3 rounded-4 rounded-br-0" style="border-bottom-right-radius: 4px; max-width: 75%;">
+              {{ m.message }}
+            </div>
+            <small class="text-muted mt-1" style="font-size: 0.75rem;">You</small>
+          </div>
+        {% else %}
+          <div class="d-flex flex-column align-items-start mb-3">
+            <div class="bg-white text-dark border shadow-sm p-3 rounded-4 rounded-bl-0" style="border-bottom-left-radius: 4px; max-width: 75%;">
+              {{ m.message }}
+            </div>
+            <small class="text-muted mt-1" style="font-size: 0.75rem;">{{ connected_user.username }}</small>
+          </div>
+        {% endif %}
+      {% endfor %}
+
+    </div>
+
+  </div>
+</div>
+
+<!-- ================= QUICK REPLY ================= -->
+<div class="card glass shadow-lg border-0 fade-in-up" style="animation-delay: 0.2s;">
+  <div class="card-body p-4">
+
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="input-group input-group-lg shadow-sm rounded-pill overflow-hidden">
+        <input type="text"
+               name="message"
+               class="form-control border-0 bg-white ps-4"
+               placeholder="Type a quick reply..."
+               required>
+        <button class="btn btn-primary px-4 fw-bold">
+          <i class="bi bi-send-fill me-2"></i> Send
+        </button>
+      </div>
+    </form>
+
+  </div>
+</div>
+
+{% endif %}
+
+{% endblock %}

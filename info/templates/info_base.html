@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- INFO MODULE STYLES -->
+<link rel="stylesheet" href="{{ url_for('info.static', filename='css/style.css') }}">
+
+<!-- ================= INFO CONTENT ================= -->
+<div class="info-wrapper">
+  {% block info_content %}{% endblock %}
+</div>
+
+<!-- ================= INFO FOOTER ================= -->
+<footer class="info-footer mt-5 py-4">
+  <div class="container text-center">
+    <div class="mb-2 fw-semibold text-primary">
+      <i class="bi bi-heart-pulse me-1"></i>
+      Aarogya Saarthi – Health Information
+    </div>
+
+    <p class="mb-1 text-muted small">
+      © 2025 Aarogya Saarthi. All rights reserved.
+    </p>
+
+    <p class="disclaimer small text-muted mb-0">
+      ⚠ This content is for awareness and educational purposes only.
+      Please consult a healthcare professional or ASHA worker for medical advice.
+    </p>
+  </div>
+</footer>
+
+{% endblock %}

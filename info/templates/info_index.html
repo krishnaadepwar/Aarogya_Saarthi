@@ -1,0 +1,54 @@
+{% extends "info_base.html" %}
+{% block title %}Health Information{% endblock %}
+
+{% block info_content %}
+
+<!-- ================= PAGE HEADER ================= -->
+<div class="mb-4 text-center fade-in-up">
+  <h3 class="fw-bold text-primary mb-1">
+    Explore Health Topics
+  </h3>
+  <p class="text-muted mb-0">
+    Learn about health, nutrition, pregnancy, and preventive care
+  </p>
+</div>
+
+<!-- ================= CATEGORY GRID ================= -->
+<div class="row g-4 justify-content-center fade-in-up" style="animation-delay: 0.1s;">
+
+  {% for sub in categories["well-being"]["sub"] %}
+    {% set norm = sub|lower|replace(' ', '-')|replace('&', 'and') %}
+
+    <div class="col-6 col-md-4 col-lg-3">
+      <a href="{{ url_for('info.category', name=norm) }}"
+         class="card glass h-100 text-decoration-none text-dark hover-lift border-0 shadow-sm">
+
+        <div class="card-body text-center p-4">
+
+          <div class="d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-circle mb-3 shadow-sm" style="width: 64px; height: 64px;">
+            <i class="bi bi-journal-medical display-6"></i>
+          </div>
+
+          <h6 class="fw-bold mb-2">
+            {{ sub }}
+          </h6>
+
+          <p class="small text-muted mb-0">
+            Articles, tips & videos
+          </p>
+
+        </div>
+      </a>
+    </div>
+
+  {% endfor %}
+
+  {% if categories["well-being"]["sub"]|length == 0 %}
+    <p class="text-muted text-center">
+      No categories available.
+    </p>
+  {% endif %}
+
+</div>
+
+{% endblock %}

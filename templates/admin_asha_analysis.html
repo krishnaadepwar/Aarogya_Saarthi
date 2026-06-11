@@ -1,0 +1,481 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- ================= PAGE HEADER ================= -->
+<div class="mb-4 fade-in-up">
+  <div class="d-flex align-items-center">
+    <div class="bg-primary-subtle text-primary rounded-circle p-3 me-3">
+      <i class="bi bi-graph-up-arrow fs-4"></i>
+    </div>
+    <div>
+      <h3 class="fw-bold text-dark mb-1">ASHA Area Analytics</h3>
+      <p class="text-muted mb-0">
+        View healthcare statistics and patient distribution for individual ASHA worker areas
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ================= ASHA SELECTION ================= -->
+<div class="card glass border-0 overflow-hidden mb-4 fade-in-up" style="animation-delay: 0.1s;">
+  <div class="card-header bg-gradient-primary text-white p-3 border-0">
+    <h6 class="mb-0 fw-semibold">
+      <i class="bi bi-filter-circle me-2"></i> Select Area to Analyze
+    </h6>
+  </div>
+  <div class="card-body p-4 bg-white bg-opacity-50">
+
+    <form method="post" class="row g-3 align-items-end">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <div class="col-md-9">
+        <label class="form-label text-muted small fw-bold text-uppercase">ASHA Worker / Area</label>
+        <div class="input-group shadow-sm">
+          <span class="input-group-text bg-white border-end-0"><i class="bi bi-person-badge text-primary"></i></span>
+          <select name="asha_id" class="form-select border-start-0" required>
+            {% for a in ashas %}
+              <option value="{{ a.id }}"
+                {% if selected_asha and a.id == selected_asha.id %}selected{% endif %}>
+                {{ a.name }} — Area: {{ a.area }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <button class="btn btn-primary w-100 shadow-sm">
+          <i class="bi bi-bar-chart-line me-1"></i> View Analytics
+        </button>
+      </div>
+
+    </form>
+
+  </div>
+</div>
+
+{% if false %}
+<!-- ================= OVERALL KPIs + AREA SUMMARY (moved to admin_analysis) ================= -->
+<div class="row g-3 mb-4 fade-in-up" style="animation-delay: 0.2s;">
+  <!-- Overall KPI cards -->
+  <div class="col-lg-8">
+    <div class="card glass border-0 h-100">
+      <div class="card-body p-4">
+        <h6 class="text-uppercase text-muted fw-semibold mb-3">
+          Overall System Performance
+        </h6>
+        <div class="row g-3">
+          <div class="col-6 col-md-3">
+            <div class="border rounded-3 p-3 bg-white bg-opacity-60">
+              <div class="text-xs text-muted text-uppercase fw-semibold mb-1">ASHA Workers</div>
+              <div class="h4 mb-0 fw-bold text-primary">{{ overall_kpis.total_ashas }}</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="border rounded-3 p-3 bg-white bg-opacity-60">
+              <div class="text-xs text-muted text-uppercase fw-semibold mb-1">Households</div>
+              <div class="h4 mb-0 fw-bold text-teal">{{ overall_kpis.households }}</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="border rounded-3 p-3 bg-white bg-opacity-60">
+              <div class="text-xs text-muted text-uppercase fw-semibold mb-1">Population</div>
+              <div class="h4 mb-0 fw-bold text-indigo">{{ overall_kpis.population }}</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="border rounded-3 p-3 bg-white bg-opacity-60">
+              <div class="text-xs text-muted text-uppercase fw-semibold mb-1">Tasks Done</div>
+              <div class="h4 mb-0 fw-bold text-success">{{ overall_kpis.task_completion_rate }}%</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="border rounded-3 p-3 bg-white bg-opacity-60 mt-2">
+              <div class="text-xs text-muted text-uppercase fw-semibold mb-1">Ongoing Pregnancies</div>
+              <div class="h5 mb-0 fw-semibold">{{ overall_kpis.pregnancies_ongoing }}</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="border rounded-3 p-3 bg-white bg-opacity-60 mt-2">
+              <div class="text-xs text-muted text-uppercase fw-semibold mb-1">High Risk</div>
+              <div class="h5 mb-0 fw-semibold text-danger">{{ overall_kpis.high_risk }}</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="border rounded-3 p-3 bg-white bg-opacity-60 mt-2">
+              <div class="text-xs text-muted text-uppercase fw-semibold mb-1">Fully Immunized</div>
+              <div class="h5 mb-0 fw-semibold text-primary">{{ overall_kpis.fully_immunized_percent }}%</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="border rounded-3 p-3 bg-white bg-opacity-60 mt-2">
+              <div class="text-xs text-muted text-uppercase fw-semibold mb-1">Overdue Tasks</div>
+              <div class="h5 mb-0 fw-semibold text-warning">{{ overall_kpis.overdue_tasks }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Area summary and chart -->
+  <div class="col-lg-4">
+    <div class="card glass border-0 h-100">
+      <div class="card-body p-4">
+
+        <div class="d-flex justify-content-between align-items-start mb-3">
+          <div>
+            <h6 class="fw-bold mb-1">
+              <i class="bi bi-geo-alt-fill text-danger me-2"></i> Area: {{ area_label }}
+            </h6>
+            {% if selected_asha %}
+              <p class="text-muted small mb-0">
+                Managed by <span class="fw-semibold text-primary">{{ selected_asha.name }}</span>
+              </p>
+            {% endif %}
+          </div>
+          <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill">
+            Live Data
+          </span>
+        </div>
+
+        <div style="height: 260px; width: 100%;">
+          <canvas id="asha_chart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- ================= AREA SUMMARY ================= -->
+<!-- <div class="card glass border-0 mb-4 fade-in-up" style="animation-delay: 0.2s;">
+  <div class="card-body p-4">
+    <div class="d-flex justify-content-between align-items-start mb-3">
+      <div>
+        <h6 class="fw-bold mb-1">
+          <i class="bi bi-geo-alt-fill text-danger me-2"></i> Area: {{ area_label }}
+        </h6>
+        {% if selected_asha %}
+          <p class="text-muted small mb-0">
+            Managed by <span class="fw-semibold text-primary">{{ selected_asha.name }}</span>
+          </p>
+        {% endif %}
+      </div>
+      <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill">
+        Live Data
+      </span>
+    </div>
+    <div style="height: 260px; width: 100%;">
+      <canvas id="asha_chart"></canvas>
+    </div>
+  </div>
+</div> -->
+
+{% if false %}
+<!-- ================= ASHA COMPARISON TABLE (moved to admin_analysis) ================= -->
+<div class="card glass border-0 mb-4 fade-in-up" style="animation-delay: 0.3s;">
+  <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+    <div>
+      <h6 class="mb-0 fw-semibold">
+        <i class="bi bi-people-fill text-primary me-2"></i> ASHA Performance Comparison
+      </h6>
+      <p class="text-muted small mb-0">Sort columns to find best and weakest performers</p>
+    </div>
+  </div>
+  <div class="table-responsive">
+    <div class="p-3">
+      <div class="row g-2 align-items-center">
+        <div class="col-md-4 ms-auto">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text bg-white"><i class="bi bi-funnel"></i></span>
+            <input id="villageFilter" class="form-control" placeholder="Filter by village">
+          </div>
+        </div>
+      </div>
+    </div>
+    <table class="table table-hover align-middle mb-0" id="asha-table">
+      <thead class="table-light">
+        <tr>
+          <th scope="col" data-sort="text">ASHA</th>
+          <th scope="col" data-sort="text">Village</th>
+          <th scope="col" data-sort="num">Population</th>
+          <th scope="col" data-sort="num">Pregnancies</th>
+          <th scope="col" data-sort="num">High Risk</th>
+          <th scope="col" data-sort="num">Tasks Completed %</th>
+          <th scope="col" data-sort="num">Overdue Tasks</th>
+          <th scope="col" data-sort="num">Visits This Month</th>
+          <th scope="col"></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in asha_rows %}
+          <tr>
+            <td>{{ row.name }}</td>
+            <td>{{ row.village }}</td>
+            <td>{{ row.population }}</td>
+            <td>{{ row.pregnancies }}</td>
+            <td class="text-danger fw-semibold">{{ row.high_risk }}</td>
+            <td>
+              <span class="badge {% if row.tasks_completed_pct >= 90 %}bg-success-subtle text-success{% elif row.tasks_completed_pct >= 70 %}bg-warning-subtle text-warning{% else %}bg-danger-subtle text-danger{% endif %}">
+                {{ row.tasks_completed_pct }}%
+              </span>
+            </td>
+            <td>{{ row.overdue_tasks }}</td>
+            <td>{{ row.visits_this_month }}</td>
+            <td>
+              <a href="{{ url_for('analytics.admin_asha_analysis', detail_asha_id=row.id) }}" class="btn btn-sm btn-outline-primary">
+                View Detail
+              </a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  (function() {
+    const table = document.getElementById('asha-table');
+    if (!table) return;
+    const tbody = table.querySelector('tbody');
+    const headers = table.querySelectorAll('thead th[data-sort]');
+    let sortIndex = -1;
+    let sortDir = 1;
+
+    function getCellValue(tr, idx, type) {
+      const text = tr.children[idx].innerText.trim();
+      if (type === 'num') {
+        const n = parseFloat(text.replace('%','')) || 0;
+        return n;
+      }
+      return text.toLowerCase();
+    }
+
+    function sortBy(idx, type) {
+      const rows = Array.from(tbody.querySelectorAll('tr'));
+      const dir = (idx === sortIndex) ? -sortDir : 1;
+      rows.sort((a, b) => {
+        const va = getCellValue(a, idx, type);
+        const vb = getCellValue(b, idx, type);
+        if (va < vb) return -1 * dir;
+        if (va > vb) return 1 * dir;
+        return 0;
+      });
+      rows.forEach(r => tbody.appendChild(r));
+      sortIndex = idx;
+      sortDir = dir;
+    }
+
+    headers.forEach((th, idx) => {
+      th.style.cursor = 'pointer';
+      th.addEventListener('click', () => sortBy(idx, th.getAttribute('data-sort')));
+    });
+
+    const filter = document.getElementById('villageFilter');
+    if (filter) {
+      filter.addEventListener('input', () => {
+        const q = filter.value.trim().toLowerCase();
+        Array.from(tbody.querySelectorAll('tr')).forEach(tr => {
+          const village = tr.children[1].innerText.trim().toLowerCase();
+          tr.style.display = !q || village.includes(q) ? '' : 'none';
+        });
+      });
+    }
+  })();
+</script>
+{% endif %}
+
+<!-- ================= PER-ASHA DETAIL (WHEN SELECTED) ================= -->
+{% if asha_detail %}
+<div class="card glass border-0 mb-4 fade-in-up" style="animation-delay: 0.4s;">
+  <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+    <div>
+      <h6 class="mb-0 fw-semibold">
+        <i class="bi bi-person-badge me-2 text-primary"></i> {{ asha_detail.name }} ({{ asha_detail.village }})
+      </h6>
+      <p class="text-muted small mb-0">Individual performance and risk overview</p>
+    </div>
+  </div>
+  <div class="card-body p-4">
+    <div class="row g-3">
+      <div class="col-md-3">
+        <div class="border rounded-3 p-3 bg-white bg-opacity-70">
+          <div class="text-xs text-muted text-uppercase fw-semibold mb-1">Households</div>
+          <div class="h5 mb-0 fw-bold">{{ asha_detail.households }}</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="border rounded-3 p-3 bg-white bg-opacity-70">
+          <div class="text-xs text-muted text-uppercase fw-semibold mb-1">Population</div>
+          <div class="h5 mb-0 fw-bold">{{ asha_detail.population }}</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="border rounded-3 p-3 bg-white bg-opacity-70">
+          <div class="text-xs text-muted text-uppercase fw-semibold mb-1">Pregnancies (Ongoing)</div>
+          <div class="h5 mb-0 fw-bold">{{ asha_detail.pregnancies_ongoing }}</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="border rounded-3 p-3 bg-white bg-opacity-70">
+          <div class="text-xs text-muted text-uppercase fw-semibold mb-1">High Risk %</div>
+          <div class="h5 mb-0 fw-bold text-danger">{{ asha_detail.high_risk_pct }}%</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="border rounded-3 p-3 bg-white bg-opacity-70">
+          <div class="text-xs text-muted text-uppercase fw-semibold mb-1">ANC Visits Avg</div>
+          <div class="h5 mb-0 fw-bold">{{ asha_detail.anc_avg }}</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="border rounded-3 p-3 bg-white bg-opacity-70">
+          <div class="text-xs text-muted text-uppercase fw-semibold mb-1">ANC 4+ %</div>
+          <div class="h5 mb-0 fw-bold text-success">{{ asha_detail.anc_4plus_pct }}%</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="border rounded-3 p-3 bg-white bg-opacity-70">
+          <div class="text-xs text-muted text-uppercase fw-semibold mb-1">Growth Coverage %</div>
+          <div class="h5 mb-0 fw-bold text-primary">{{ asha_detail.growth_coverage_pct }}%</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="border rounded-3 p-3 bg-white bg-opacity-70">
+          <div class="text-xs text-muted text-uppercase fw-semibold mb-1">Low Birth Weight %</div>
+          <div class="h5 mb-0 fw-bold text-warning">{{ asha_detail.low_bw_pct }}%</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="border rounded-3 p-3 bg-white bg-opacity-70">
+          <div class="text-xs text-muted text-uppercase fw-semibold mb-1">Elderly</div>
+          <div class="h5 mb-0 fw-bold">{{ asha_detail.elderly_total }}</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="border rounded-3 p-3 bg-white bg-opacity-70">
+          <div class="text-xs text-muted text-uppercase fw-semibold mb-1">Uncontrolled BP %</div>
+          <div class="h5 mb-0 fw-bold text-danger">{{ asha_detail.uncontrolled_bp_pct }}%</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="border rounded-3 p-3 bg-white bg-opacity-70">
+          <div class="text-xs text-muted text-uppercase fw-semibold mb-1">Uncontrolled Sugar %</div>
+          <div class="h5 mb-0 fw-bold text-danger">{{ asha_detail.uncontrolled_sugar_pct }}%</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="border rounded-3 p-3 bg-white bg-opacity-70">
+          <div class="text-xs text-muted text-uppercase fw-semibold mb-1">Tasks Completed %</div>
+          <div class="h5 mb-0 fw-bold text-success">{{ asha_detail.tasks_completed_pct }}%</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="border rounded-3 p-3 bg-white bg-opacity-70">
+          <div class="text-xs text-muted text-uppercase fw-semibold mb-1">Overdue Tasks</div>
+          <div class="h5 mb-0 fw-bold text-warning">{{ asha_detail.tasks_overdue }}</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="border rounded-3 p-3 bg-white bg-opacity-70">
+          <div class="text-xs text-muted text-uppercase fw-semibold mb-1">Visits This Month</div>
+          <div class="h5 mb-0 fw-bold">{{ asha_detail.visits_this_month }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+<!-- ================= CHART JS ================= -->
+{% block scripts %}
+<script>
+  // Common Options
+  Chart.defaults.font.family = "'Inter', system-ui, -apple-system, sans-serif";
+  Chart.defaults.color = '#64748B';
+  Chart.defaults.scale.grid.color = '#F1F5F9';
+
+  const labels = ["Pregnant Women", "Children", "Elderly", "General Patients"];
+
+  const data = {
+    labels: labels,
+    datasets: [{
+      label: "Patient Count",
+      data: [
+        {{ stats.pregnant or 0 }},
+        {{ stats.children or 0 }},
+        {{ stats.elderly or 0 }},
+        {{ stats.general or 0 }}
+      ],
+      backgroundColor: [
+        'rgba(236, 72, 153, 0.7)', // Pink for Pregnant
+        'rgba(59, 130, 246, 0.7)', // Blue for Children
+        'rgba(245, 158, 11, 0.7)', // Orange for Elderly
+        'rgba(16, 185, 129, 0.7)'  // Green for General
+      ],
+      borderColor: [
+        'rgb(236, 72, 153)',
+        'rgb(59, 130, 246)',
+        'rgb(245, 158, 11)',
+        'rgb(16, 185, 129)'
+      ],
+      borderWidth: 1,
+      borderRadius: 8,
+      barThickness: 50
+    }]
+  };
+
+  new Chart(document.getElementById("asha_chart"), {
+    type: "bar",
+    data: data,
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(255, 255, 255, 0.95)',
+          titleColor: '#1e293b',
+          bodyColor: '#475569',
+          borderColor: '#e2e8f0',
+          borderWidth: 1,
+          padding: 12,
+          cornerRadius: 8,
+          displayColors: true
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: {
+            borderDash: [2, 2]
+          },
+          ticks: {
+            padding: 10
+          }
+        },
+        x: {
+          grid: {
+            display: false
+          }
+        }
+      },
+      layout: {
+        padding: 10
+      }
+    }
+  });
+  
+  if (typeof Chart === "undefined") {
+    const canvas = document.getElementById("asha_chart");
+    const note = document.createElement("div");
+    note.className = "alert alert-warning mt-3";
+    note.innerText = "Chart library failed to load. Please check your internet connection.";
+    canvas.parentElement.appendChild(note);
+  }
+</script>
+{% endblock %}

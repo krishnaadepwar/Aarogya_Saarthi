@@ -1,0 +1,38 @@
+.chat-card {
+  border-radius: 16px;
+}
+
+.chat-body {
+  height: 420px;
+  overflow-y: auto;
+  background: #f8f9fa;
+}
+
+.chat-bubble {
+  max-width: 75%;
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  position: relative;
+}
+
+.user-bubble {
+  background: #1e88e5;
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+
+.bot-bubble {
+  background: #ffffff;
+  color: #333;
+  border: 1px solid #e0e0e0;
+  border-bottom-left-radius: 4px;
+}
+
+.chat-time {
+  font-size: 0.7rem;
+  opacity: 0.6;
+  margin-top: 4px;
+  text-align: right;
+}

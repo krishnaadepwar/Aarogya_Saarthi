@@ -1,0 +1,104 @@
+{% extends "disease_base.html" %}
+{% block content %}
+
+<!-- ================= PAGE HEADER ================= -->
+<div class="mb-4 text-center">
+  <h3 class="fw-bold text-primary mb-1">
+    Confirm Your Symptoms
+  </h3>
+  <p class="text-muted mb-0">
+    Please review and select symptoms before disease prediction
+  </p>
+</div>
+
+<!-- ================= REFINEMENT CARD ================= -->
+<div class="row justify-content-center">
+  <div class="col-md-7">
+
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+
+        <form method="POST">
+
+          <!-- ENTERED SYMPTOMS -->
+          <div class="mb-4">
+            <h6 class="fw-semibold mb-2">
+              <i class="bi bi-check-circle-fill text-success me-1"></i>
+              Symptoms You Entered
+            </h6>
+
+            {% if matched %}
+              {% for sym in matched %}
+                <div class="form-check">
+                  <input class="form-check-input"
+                         type="checkbox"
+                         name="extra_symptoms"
+                         value="{{ sym }}"
+                         checked
+                         id="chk_{{ loop.index }}">
+                  <label class="form-check-label" for="chk_{{ loop.index }}">
+                    {{ sym }}
+                  </label>
+                </div>
+              {% endfor %}
+            {% else %}
+              <p class="text-muted small">
+                No matched symptoms found.
+              </p>
+            {% endif %}
+          </div>
+
+          <!-- SUGGESTED SYMPTOMS -->
+          <div class="mb-4">
+            <h6 class="fw-semibold mb-2">
+              <i class="bi bi-lightbulb-fill text-warning me-1"></i>
+              Suggested Related Symptoms
+            </h6>
+
+            <p class="small text-muted mb-2">
+              Select any additional symptoms that apply to you
+            </p>
+
+            {% if co_symptoms %}
+              {% for sym in co_symptoms %}
+                <div class="form-check">
+                  <input class="form-check-input"
+                         type="checkbox"
+                         name="extra_symptoms"
+                         value="{{ sym }}"
+                         id="sug_{{ loop.index }}">
+                  <label class="form-check-label" for="sug_{{ loop.index }}">
+                    {{ sym }}
+                  </label>
+                </div>
+              {% endfor %}
+            {% else %}
+              <p class="text-muted small">
+                No additional suggestions available.
+              </p>
+            {% endif %}
+          </div>
+
+          <!-- ACTION -->
+          <button type="submit" class="btn btn-primary w-100 py-2">
+            <i class="bi bi-activity me-1"></i>
+            Predict Diseases
+          </button>
+
+        </form>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- BACK -->
+<div class="text-center mt-3">
+  <a href="{{ url_for('disease.disease_home') }}"
+     class="btn btn-outline-secondary btn-sm">
+    <i class="bi bi-arrow-left me-1"></i> Back
+  </a>
+</div>
+
+{% endblock %}

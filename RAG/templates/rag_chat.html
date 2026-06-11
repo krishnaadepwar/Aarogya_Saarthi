@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- ================= PAGE HEADER ================= -->
+<div class="text-center mb-4 fade-in-up">
+  <div class="d-inline-flex align-items-center justify-content-center bg-gradient-primary text-white rounded-circle mb-3 shadow-lg" style="width: 64px; height: 64px;">
+    <i class="bi bi-robot fs-2"></i>
+  </div>
+  <h3 class="fw-bold text-primary mb-1">
+    Health Assistant Chatbot
+  </h3>
+  <p class="text-muted mb-0">
+    Ask health-related questions and get guidance instantly
+  </p>
+</div>
+
+<!-- ================= CHAT CONTAINER ================= -->
+<div class="container pb-4 fade-in-up" style="animation-delay: 0.1s;">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+
+      {% if not config_ok %}
+      <div class="alert alert-warning d-flex align-items-center mb-3" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <div>
+          Chatbot is not configured or failed to initialize.
+          {% if config_error %}
+            <div class="small mt-1">Error: {{ config_error }}</div>
+          {% else %}
+            <div class="small mt-1">Please set OPENROUTER_API_URL, OPENROUTER_MODEL, OPENROUTER_API_KEY, and PINECONE_API_KEY in environment.</div>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="card glass border-0 shadow-lg overflow-hidden" style="height: 600px; display: flex; flex-direction: column;">
+
+        <!-- HEADER -->
+        <div class="card-header bg-gradient-primary text-white border-0 p-3 d-flex align-items-center gap-3">
+          <div class="bg-white text-primary rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 40px; height: 40px;">
+            <i class="bi bi-stars"></i>
+          </div>
+          <div>
+            <div class="fw-bold">Aarogya Saarthi Assistant</div>
+            <small class="opacity-75">AI-powered health guidance</small>
+          </div>
+        </div>
+
+        <!-- CHAT BODY -->
+        <div id="messageFormeight" class="card-body p-4 overflow-auto flex-grow-1" style="background: rgba(255,255,255,0.6);">
+          <div class="text-center text-muted small mt-3 mb-4">
+            <span class="badge bg-white border shadow-sm text-secondary rounded-pill px-3 py-2">
+              👋 Hello! You can ask about symptoms, medicines, diet, and more.
+            </span>
+          </div>
+        </div>
+
+        <!-- INPUT -->
+        <div class="card-footer bg-white border-0 p-3">
+          <form id="messageArea" method="POST" class="d-flex gap-2">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="text"
+                   id="text"
+                   name="msg"
+                   class="form-control form-control-lg border-0 bg-light rounded-pill px-4 shadow-inner"
+                   placeholder="Type your health question..."
+                   autocomplete="off"
+                   {% if not config_ok %}disabled{% endif %}
+                   required>
+            <button type="submit" class="btn btn-primary rounded-circle shadow-lg d-flex align-items-center justify-content-center hover-scale" style="width: 50px; height: 50px; flex-shrink: 0;" {% if not config_ok %}disabled{% endif %}>
+              <i class="bi bi-send-fill"></i>
+            </button>
+          </form>
+        </div>
+
+      </div>
+
+      <!-- DISCLAIMER -->
+      <div class="text-center mt-3 fade-in-up" style="animation-delay: 0.2s;">
+        <small class="text-muted bg-white bg-opacity-50 px-3 py-1 rounded-pill border">
+          <i class="bi bi-exclamation-triangle-fill text-warning me-1"></i>
+          This chatbot provides general info. Always consult a doctor.
+        </small>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ================= SCRIPTS ================= -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+<script>
+var CONFIG_OK = {{ 'true' if config_ok else 'false' }};
+$(function () {
+  $("#messageArea").on("submit", function (event) {
+    event.preventDefault();
+    if (!CONFIG_OK) { return false; }
+
+    const date = new Date();
+    const str_time =
+      date.getHours() + ":" + date.getMinutes().toString().padStart(2, "0");
+
+    const rawText = $("#text").val().trim();
+    if (!rawText) return;
+
+    // User Message Template
+    const userHtml = `
+      <div class="mb-3 d-flex flex-column align-items-end fade-in-up">
+        <div class="bg-primary text-white shadow-sm p-3 rounded-4" style="border-bottom-right-radius: 4px; max-width: 80%;">
+          ${rawText}
+        </div>
+        <small class="text-muted mt-1" style="font-size: 0.7rem;">${str_time}</small>
+      </div>`;
+
+    $("#text").val("");
+    $("#messageFormeight").append(userHtml);
+    $("#messageFormeight").scrollTop($("#messageFormeight")[0].scrollHeight);
+
+    $.ajax({
+      data: { msg: rawText, csrf_token: "{{ csrf_token() }}" },
+      type: "POST",
+      headers: { "X-CSRFToken": "{{ csrf_token() }}" },
+      url: "{{ url_for('rag.rag_chat') }}"
+    }).done(function (data) {
+
+      // Bot Message Template
+      const botHtml = `
+        <div class="mb-3 d-flex flex-column align-items-start fade-in-up">
+          <div class="bg-white text-dark border shadow-sm p-3 rounded-4" style="border-bottom-left-radius: 4px; max-width: 80%;">
+            ${data}
+          </div>
+          <small class="text-muted mt-1" style="font-size: 0.7rem;">${str_time}</small>
+        </div>`;
+
+      $("#messageFormeight").append($.parseHTML(botHtml));
+      $("#messageFormeight").scrollTop($("#messageFormeight")[0].scrollHeight);
+    }).fail(function (xhr) {
+      const err = xhr.responseText || "Service unavailable";
+      const botHtml = `
+        <div class="mb-3 d-flex flex-column align-items-start fade-in-up">
+          <div class="bg-white text-danger border border-danger-subtle shadow-sm p-3 rounded-4" style="border-bottom-left-radius: 4px; max-width: 80%;">
+            ${err}
+          </div>
+          <small class="text-muted mt-1" style="font-size: 0.7rem;">${str_time}</small>
+        </div>`;
+      $("#messageFormeight").append($.parseHTML(botHtml));
+      $("#messageFormeight").scrollTop($("#messageFormeight")[0].scrollHeight);
+    });
+  });
+});
+</script>
+
+<style>
+  .hover-scale { transition: transform 0.2s; }
+  .hover-scale:hover { transform: scale(1.1); }
+  .shadow-inner { box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); }
+</style>
+
+{% endblock %}

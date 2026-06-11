@@ -1,0 +1,97 @@
+{% extends "info_base.html" %}
+{% block title %}{{ category|title }}{% endblock %}
+
+{% block info_content %}
+
+<!-- ================= PAGE HEADER ================= -->
+<div class="mb-5 text-center fade-in-up" style="animation-delay: 0.1s;">
+  <h3 class="fw-bold text-primary mb-2 display-6">
+    {{ category|title }}
+  </h3>
+  <p class="text-muted mb-0 lead fs-6">
+    Educational articles and guidance related to this topic
+  </p>
+</div>
+
+<!-- ================= ARTICLE LIST ================= -->
+<div class="row justify-content-center">
+  <div class="col-md-10 col-lg-8">
+
+    {% if articles %}
+      <div class="row g-4">
+
+        {% for article in articles %}
+        <div class="col-md-6 fade-in-up" style="animation-delay: {{ loop.index0 * 0.1 + 0.2 }}s;">
+
+          <a href="{{ url_for('info.article', slug=article.slug) }}" class="text-decoration-none">
+            <div class="card glass h-100 info-article-card border-0 shadow-sm hover-lift">
+              <div class="card-body p-4 d-flex flex-column">
+
+                <div class="mb-3">
+                  <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-1">
+                    Article
+                  </span>
+                </div>
+
+                <h5 class="fw-bold mb-3 text-dark article-title">
+                  {{ article.title }}
+                </h5>
+
+                <p class="text-muted small mb-4 flex-grow-1 line-clamp-3">
+                  {{ article.summary }}
+                </p>
+
+                <div class="mt-auto text-primary fw-semibold small">
+                  Read Article <i class="bi bi-arrow-right ms-1"></i>
+                </div>
+
+              </div>
+            </div>
+          </a>
+
+        </div>
+        {% endfor %}
+
+      </div>
+    {% else %}
+      <div class="text-center p-5 fade-in-up">
+        <div class="mb-3 text-muted">
+          <i class="bi bi-journal-x display-4"></i>
+        </div>
+        <p class="text-muted fw-semibold">
+          No articles available for this category yet.
+        </p>
+      </div>
+    {% endif %}
+
+  </div>
+</div>
+
+<!-- ================= BACK ================= -->
+<div class="text-center mt-5 fade-in-up" style="animation-delay: 0.5s;">
+  <a href="{{ url_for('info.info_home') }}"
+     class="btn btn-outline-secondary rounded-pill px-4 shadow-sm hover-lift">
+    <i class="bi bi-arrow-left me-1"></i>
+    Back to Topics
+  </a>
+</div>
+
+<style>
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .info-article-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .article-title {
+    transition: color 0.3s ease;
+  }
+  .info-article-card:hover .article-title {
+    color: var(--bs-primary) !important;
+  }
+</style>
+
+{% endblock %}

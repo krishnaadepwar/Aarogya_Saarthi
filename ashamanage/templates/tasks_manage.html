@@ -1,0 +1,165 @@
+{% extends "asha_base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4 align-items-center">
+        <div class="col">
+            <h2 class="fw-bold text-success mb-0"><i class="bi bi-calendar-check-fill me-2"></i>Task Management</h2>
+            <p class="text-muted">Plan and track your daily healthcare activities</p>
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-success rounded-pill px-4" type="button" data-bs-toggle="collapse" data-bs-target="#addTaskForm">
+                <i class="bi bi-plus-lg me-2"></i>Create New Task
+            </button>
+        </div>
+    </div>
+
+    <div class="collapse mb-4" id="addTaskForm">
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body p-4">
+                <h5 class="card-title fw-bold mb-4">New Task Assignment</h5>
+                <form method="POST">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Assign to Person (Optional)</label>
+                            <select name="person_id" class="form-select rounded-3">
+                                <option value="">General Task (No person)</option>
+                                {% for p in persons %}
+                                <option value="{{ p.id }}">{{ p.name }} ({{ p.category|capitalize }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Task Type</label>
+                            <select name="task_type" class="form-select rounded-3" required>
+                                <option value="ANC Checkup">ANC Checkup</option>
+                                <option value="Immunization">Immunization</option>
+                                <option value="Home Visit">Home Visit</option>
+                                <option value="Referral Follow-up">Referral Follow-up</option>
+                                <option value="Medicine Distribution">Medicine Distribution</option>
+                                <option value="Meeting">Meeting</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Due Date</label>
+                            <input type="date" name="due_date" class="form-control rounded-3" required>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label fw-semibold">Notes / Description</label>
+                            <textarea name="notes" class="form-control rounded-3" rows="2" placeholder="Task details..."></textarea>
+                        </div>
+                        <div class="col-12 text-end">
+                            <button type="submit" class="btn btn-success rounded-pill px-4">
+                                <i class="bi bi-plus-circle me-2"></i>Create Task
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="ps-4">Due Date</th>
+                                <th>Task Type</th>
+                                <th>Assigned To</th>
+                                <th>Notes</th>
+                                <th class="text-end pe-4">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for task in tasks %}
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="fw-bold {% if task.due_date < today %}text-danger{% endif %}">{{ task.due_date }}</div>
+                                </td>
+                                <td><span class="badge bg-success-subtle text-success rounded-pill px-3">{{ task.task_type }}</span></td>
+                                <td>
+                                    {% if task.person %}
+                                        {{ task.person.name }}
+                                        <small class="text-muted d-block">{{ task.person.category|capitalize }}</small>
+                                    {% else %}
+                                        <span class="text-muted">General</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ task.notes }}</td>
+                                <td class="text-end pe-4">
+                                    <div class="d-flex justify-content-end align-items-center">
+                                        <form action="{{ url_for('asha.update_task_status', id=task.id) }}" method="POST" class="me-2">
+                                            {% if task.status == 'pending' %}
+                                                <button type="submit" class="btn btn-sm btn-outline-warning rounded-pill px-3">Pending</button>
+                                            {% else %}
+                                                <button type="submit" class="btn btn-sm btn-success rounded-pill px-3">Completed</button>
+                                            {% endif %}
+                                        </form>
+                                        <button class="btn btn-sm btn-link text-warning p-0 me-2" data-bs-toggle="modal" data-bs-target="#editTaskModal{{ task.id }}">
+                                            <i class="bi bi-pencil fs-5"></i>
+                                        </button>
+                                        <form action="{{ url_for('asha.delete_task', id=task.id) }}" method="POST" onsubmit="return confirm('Delete this task?')">
+                                            <button type="submit" class="btn btn-sm btn-link text-danger p-0">
+                                                <i class="bi bi-trash fs-5"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+
+                                    <!-- Edit Task Modal -->
+                                    <div class="modal fade" id="editTaskModal{{ task.id }}" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content border-0 shadow-lg rounded-4">
+                                                <div class="modal-header border-0 p-4 pb-0">
+                                                    <h5 class="modal-title fw-bold">Edit Task</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <form action="{{ url_for('asha.edit_task', id=task.id) }}" method="POST">
+                                                    <div class="modal-body p-4">
+                                                        <div class="row g-3 text-start">
+                                                            <div class="col-md-12">
+                                                                <label class="form-label fw-semibold">Assign to Person</label>
+                                                                <select name="person_id" class="form-select rounded-3">
+                                                                    <option value="">General Task (No person)</option>
+                                                                    {% for p in persons %}
+                                                                    <option value="{{ p.id }}" {{ 'selected' if task.person_id == p.id else '' }}>{{ p.name }} ({{ p.category|capitalize }})</option>
+                                                                    {% endfor %}
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-12">
+                                                                <label class="form-label fw-semibold">Task Type</label>
+                                                                <select name="task_type" class="form-select rounded-3" required>
+                                                                    {% for opt in ["ANC Checkup", "Immunization", "Home Visit", "Referral Follow-up", "Medicine Distribution", "Meeting"] %}
+                                                                    <option value="{{ opt }}" {{ 'selected' if task.task_type == opt else '' }}>{{ opt }}</option>
+                                                                    {% endfor %}
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-12">
+                                                                <label class="form-label fw-semibold">Due Date</label>
+                                                                <input type="date" name="due_date" class="form-control rounded-3" value="{{ task.due_date }}" required>
+                                                            </div>
+                                                            <div class="col-md-12">
+                                                                <label class="form-label fw-semibold">Notes / Description</label>
+                                                                <textarea name="notes" class="form-control rounded-3" rows="3">{{ task.notes }}</textarea>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer border-0 p-4 pt-0">
+                                                        <button type="submit" class="btn btn-success w-100 rounded-pill py-2">Update Task</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

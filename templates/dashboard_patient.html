@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+
+  <!-- ================= HEADER & HERO ================= -->
+  <div class="row mb-5 fade-in-up">
+    <div class="col-12">
+      <div class="card border-0 shadow-lg overflow-hidden text-white" 
+           style="background: linear-gradient(135deg, var(--bs-primary), #3949AB);">
+        <div class="card-body p-4 p-lg-5 position-relative">
+          
+          <div class="row align-items-center position-relative z-1">
+            <div class="col-md-8">
+              <span class="badge bg-white bg-opacity-25 border border-white border-opacity-25 rounded-pill mb-3 px-3 py-2">
+                <i class="bi bi-heart-pulse-fill me-1"></i> Welcome Back
+              </span>
+              <h1 class="display-5 fw-bold mb-2">
+                Hello, {{ patient.name if patient else 'User' }}
+              </h1>
+              <p class="lead opacity-90 mb-4" style="max-width: 600px;">
+                Your health is our priority. Stay connected with your ASHA worker and track your wellness journey.
+              </p>
+              <div class="d-flex flex-wrap gap-3">
+                <a href="{{ url_for('chat.messages') }}" class="btn btn-light text-primary fw-bold rounded-pill px-4 shadow-sm">
+                  <i class="bi bi-chat-dots-fill me-2"></i> Message ASHA
+                </a>
+                <a href="{{ url_for('dashboard.patient_profile') }}" class="btn btn-outline-light rounded-pill px-4">
+                  <i class="bi bi-person-circle me-2"></i> Edit Profile
+                </a>
+              </div>
+            </div>
+            
+            <!-- Illustration/Icon -->
+            <div class="col-md-4 d-none d-md-flex justify-content-end">
+               <div class="bg-white bg-opacity-10 rounded-circle p-4 border border-white border-opacity-10">
+                 <i class="bi bi-person-check-fill display-1 text-white"></i>
+               </div>
+            </div>
+          </div>
+
+          
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= STATUS CARDS ================= -->
+  <div class="row g-4 mb-5 fade-in-up" style="animation-delay: 0.1s;">
+    
+    <div class="col-md-4">
+      <div class="card glass border-0 shadow-sm h-100">
+        <div class="card-body p-4 d-flex align-items-center">
+          <div class="bg-primary-subtle text-primary rounded-circle p-3 me-3">
+            <i class="bi bi-envelope-fill fs-4"></i>
+          </div>
+          <div>
+            <p class="text-muted small mb-0 fw-bold text-uppercase">Messages</p>
+            <h3 class="fw-bold mb-0 text-dark">{{ unread_count }} <small class="fs-6 text-muted fw-normal">unread</small></h3>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card glass border-0 shadow-sm h-100">
+        <div class="card-body p-4 d-flex align-items-center">
+          <div class="bg-success-subtle text-success rounded-circle p-3 me-3">
+            <i class="bi bi-bell-fill fs-4"></i>
+          </div>
+          <div>
+            <p class="text-muted small mb-0 fw-bold text-uppercase">Reminders</p>
+            <h3 class="fw-bold mb-0 text-dark">{{ reminders_count }} <small class="fs-6 text-muted fw-normal">active</small></h3>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card glass border-0 shadow-sm h-100">
+        <div class="card-body p-4 d-flex align-items-center">
+          <div class="bg-warning-subtle text-warning rounded-circle p-3 me-3">
+            <i class="bi bi-box-seam-fill fs-4"></i>
+          </div>
+          <div>
+            <p class="text-muted small mb-0 fw-bold text-uppercase">Supplies</p>
+            <h3 class="fw-bold mb-0 text-dark">{{ supply_count }} <small class="fs-6 text-muted fw-normal">requests</small></h3>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ================= MAIN ACTIONS & INFO ================= -->
+  <div class="row g-4 fade-in-up" style="animation-delay: 0.2s;">
+    
+    <!-- Left Column: Services -->
+    <div class="col-lg-8">
+      
+      <div class="mb-4">
+        <h5 class="fw-bold text-dark mb-3">Healthcare Services</h5>
+        <div class="row g-3">
+          
+          <div class="col-md-6">
+             <a href="{{ url_for('medicine.medicine_home') }}" class="card-hover text-decoration-none">
+               <div class="card border-0 shadow-sm h-100 p-3 bg-white">
+                 <div class="d-flex align-items-center">
+                   <div class="bg-indigo-subtle text-indigo rounded-3 p-3 me-3" style="background-color: #E8EAF6; color: #3F51B5;">
+                     <i class="bi bi-capsule fs-3"></i>
+                   </div>
+                   <div>
+                     <h6 class="fw-bold text-dark mb-1">Medicine Checker</h6>
+                     <small class="text-muted">Verify your meds</small>
+                   </div>
+                 </div>
+               </div>
+             </a>
+          </div>
+
+          <div class="col-md-6">
+             <a href="{{ url_for('disease.disease_home') }}" class="card-hover text-decoration-none">
+               <div class="card border-0 shadow-sm h-100 p-3 bg-white">
+                 <div class="d-flex align-items-center">
+                   <div class="bg-pink-subtle text-pink rounded-3 p-3 me-3" style="background-color: #FCE4EC; color: #E91E63;">
+                     <i class="bi bi-heart-pulse fs-3"></i>
+                   </div>
+                   <div>
+                     <h6 class="fw-bold text-dark mb-1">Disease Detection</h6>
+                     <small class="text-muted">Check symptoms</small>
+                   </div>
+                 </div>
+               </div>
+             </a>
+          </div>
+
+           <div class="col-md-6">
+             <a href="{{ url_for('reminders.patient_reminders') }}" class="card-hover text-decoration-none">
+               <div class="card border-0 shadow-sm h-100 p-3 bg-white">
+                 <div class="d-flex align-items-center">
+                   <div class="bg-teal-subtle text-teal rounded-3 p-3 me-3" style="background-color: #E0F2F1; color: #009688;">
+                     <i class="bi bi-alarm fs-3"></i>
+                   </div>
+                   <div>
+                     <h6 class="fw-bold text-dark mb-1">My Reminders</h6>
+                     <small class="text-muted">Stay on schedule</small>
+                   </div>
+                 </div>
+               </div>
+             </a>
+          </div>
+
+          <div class="col-md-6">
+             <a href="{{ url_for('supplies.supplies') }}" class="card-hover text-decoration-none">
+               <div class="card border-0 shadow-sm h-100 p-3 bg-white">
+                 <div class="d-flex align-items-center">
+                   <div class="bg-orange-subtle text-orange rounded-3 p-3 me-3" style="background-color: #FFF3E0; color: #EF6C00;">
+                     <i class="bi bi-clipboard2-plus fs-3"></i>
+                   </div>
+                   <div>
+                     <h6 class="fw-bold text-dark mb-1">Order Supplies</h6>
+                     <small class="text-muted">Request essentials</small>
+                   </div>
+                 </div>
+               </div>
+             </a>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Emergency Section -->
+      <div class="card border-0 shadow-sm overflow-hidden mb-4" style="background: linear-gradient(45deg, #FFEBEE, #FFCDD2);">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div class="d-flex align-items-center">
+              <div class="bg-danger text-white rounded-circle p-3 me-3 shadow-sm pulse-animation">
+                <i class="bi bi-exclamation-triangle-fill fs-4"></i>
+              </div>
+              <div>
+                <h5 class="fw-bold text-danger mb-1">Emergency Support</h5>
+                <p class="text-danger text-opacity-75 small mb-0">Urgent? Alert your ASHA worker immediately.</p>
+              </div>
+            </div>
+            <form action="{{ url_for('emergency.emergency_alert') }}" method="POST">
+              <button type="submit" class="btn btn-danger fw-bold rounded-pill px-4 shadow-sm" onclick="return confirm('Are you sure you want to send an emergency alert to your ASHA worker?')">
+                <i class="bi bi-lightning-fill me-2"></i> Send Alert
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right Column: Profile & ASHA -->
+    <div class="col-lg-4">
+      
+      <!-- Profile Card -->
+      <div class="card glass border-0 shadow-lg mb-4">
+        <div class="card-body p-4 text-center">
+          <div class="position-relative d-inline-block mb-3">
+             <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 80px; height: 80px; font-size: 2rem; font-weight: bold;">
+               {{ patient.name[0] if patient and patient.name else 'U' }}
+             </div>
+             <span class="position-absolute bottom-0 end-0 bg-success border border-white"></span>
+          </div>
+          <h5 class="fw-bold mb-1">{{ patient.name if patient else 'User' }}</h5>
+          <p class="text-muted small mb-3">{{ patient.area if patient else 'Area Unknown' }}</p>
+          
+          <div class="d-grid gap-2">
+            <a href="{{ url_for('dashboard.patient_profile') }}" class="btn btn-outline-primary btn-sm rounded-pill">Edit Profile</a>
+            <a href="{{ url_for('dashboard.complaints') }}" class="btn btn-outline-secondary btn-sm rounded-pill">Submit Complaint</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Assigned ASHA -->
+      <div class="card glass border-0 shadow-sm">
+        <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0">
+          <h6 class="fw-bold mb-0">Assigned ASHA Worker</h6>
+        </div>
+        <div class="card-body p-4">
+          {% if ashas %}
+            {% for asha in ashas %}
+            <div class="d-flex align-items-center mb-3">
+              <div class="bg-primary-subtle text-primary rounded-circle p-2 me-3">
+                <i class="bi bi-person-badge-fill fs-5"></i>
+              </div>
+              <div>
+                <h6 class="fw-bold mb-0 text-dark">{{ asha.name }}</h6>
+                <a href="tel:{{ asha.phone }}" class="text-decoration-none small text-muted">
+                  <i class="bi bi-telephone-fill me-1"></i> {{ asha.phone }}
+                </a>
+              </div>
+            </div>
+            {% endfor %}
+          {% else %}
+            <div class="text-center py-3">
+              <p class="text-muted small mb-0">No ASHA worker assigned yet.</p>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<style>
+  .pulse-animation {
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(229, 57, 53, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(229, 57, 53, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(229, 57, 53, 0); }
+  }
+</style>
+{% endblock %}

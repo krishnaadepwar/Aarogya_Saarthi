@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container py-5 fade-in-up">
+  <div class="row justify-content-center">
+    <div class="col-lg-6">
+
+      <div class="card glass border-0 shadow-lg overflow-hidden">
+        
+        <!-- Header Decor -->
+        <div class="bg-primary-subtle p-4 text-center position-relative overflow-hidden">
+          <div class="position-relative z-1">
+            <div class="bg-white text-primary rounded-circle shadow-sm mx-auto d-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+              <i class="bi bi-person-heart display-5"></i>
+            </div>
+            <h4 class="fw-bold mb-1 text-dark">Patient Profile</h4>
+            <p class="text-muted small mb-0">{{ "Update your personal details" if profile else "Complete your registration" }}</p>
+          </div>
+          
+          <!-- Decor -->
+        </div>
+
+        <div class="card-body p-4 p-md-5">
+
+          <form method="post" class="needs-validation">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="row g-3">
+              
+              <!-- Name -->
+              <div class="col-12">
+                <label class="form-label small text-muted text-uppercase fw-bold">Full Name</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0"><i class="bi bi-person text-primary"></i></span>
+                  <input class="form-control bg-light border-start-0 ps-0" name="name" value="{{ profile.name if profile else '' }}" placeholder="Enter full name" required>
+                </div>
+              </div>
+
+              <!-- Age & Gender -->
+              <div class="col-md-6">
+                <label class="form-label small text-muted text-uppercase fw-bold">Age</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0"><i class="bi bi-calendar-event text-primary"></i></span>
+                  <input class="form-control bg-light border-start-0 ps-0" type="number" name="age" value="{{ profile.age if profile else '' }}" placeholder="Years" min="0" max="120" step="1" required>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small text-muted text-uppercase fw-bold">Gender</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0"><i class="bi bi-gender-ambiguous text-primary"></i></span>
+                  <select class="form-select bg-light border-start-0 ps-0" name="gender" required>
+                    <option value="" disabled {% if not profile or not profile.gender %}selected{% endif %}>Select</option>
+                    <option value="Male" {% if profile and profile.gender == "Male" %}selected{% endif %}>Male</option>
+                    <option value="Female" {% if profile and profile.gender == "Female" %}selected{% endif %}>Female</option>
+                    <option value="Other" {% if profile and profile.gender == "Other" %}selected{% endif %}>Other</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Contact -->
+              <div class="col-12">
+                <label class="form-label small text-muted text-uppercase fw-bold">Phone Number</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0"><i class="bi bi-telephone text-primary"></i></span>
+                  <input class="form-control bg-light border-start-0 ps-0" type="tel" name="phone" value="{{ profile.phone if profile else '' }}" placeholder="10-digit mobile number" pattern="[0-9]{10}" inputmode="numeric" minlength="10" maxlength="10" required>
+                </div>
+              </div>
+
+              <!-- Family & Area -->
+              <!-- <div class="col-md-6">
+                <label class="form-label small text-muted text-uppercase fw-bold">Family Size</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0"><i class="bi bi-people text-primary"></i></span>
+                  <input class="form-control bg-light border-start-0 ps-0" type="number" name="family_members" value="{{ profile.family_members if profile else '' }}" placeholder="Count" min="0" step="1" required>
+                </div>
+              </div> -->
+
+              <div class="col-md-12">
+                <label class="form-label small text-muted text-uppercase fw-bold">Area / Ward</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0"><i class="bi bi-geo-alt text-primary"></i></span>
+                  <input class="form-control bg-light border-start-0 ps-0" name="area" value="{{ profile.area if profile else '' }}" placeholder="Location" required>
+                </div>
+              </div>
+
+            </div>
+
+            <hr class="my-4 border-light">
+
+            <button class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow-sm hover-lift">
+              <i class="bi bi-check-circle-fill me-2"></i>
+              {{ "Save Changes" if profile else "Create Profile" }}
+            </button>
+
+          </form>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<style>
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+  }
+</style>
+
+{% endblock %}

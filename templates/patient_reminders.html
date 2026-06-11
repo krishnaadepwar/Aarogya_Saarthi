@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container py-4">
+
+  <!-- ================= PAGE HEADER ================= -->
+  <div class="mb-5 text-center fade-in-up">
+    <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2 mb-2">
+      <i class="bi bi-alarm-fill me-1"></i> Health Schedule
+    </span>
+    <h2 class="fw-bold text-dark mb-1">Medicine Reminders</h2>
+    <p class="text-muted mb-0 mx-auto" style="max-width: 500px;">
+      Never miss a dose. Manage your medicine schedule and stay on track with your treatment.
+    </p>
+  </div>
+
+  <div class="row g-4 fade-in-up" style="animation-delay: 0.1s;">
+    
+    <!-- ================= ADD REMINDER FORM ================= -->
+    <div class="col-lg-4">
+      <div class="card glass border-0 h-100 sticky-top" style="top: 100px; z-index: 10;">
+        <div class="card-header bg-primary text-white p-4 border-0">
+          <div class="d-flex align-items-center">
+            <div class="bg-white bg-opacity-25 rounded-circle p-2 me-3">
+              <i class="bi bi-plus-lg text-white"></i>
+            </div>
+            <h5 class="mb-0 fw-bold">Add New Reminder</h5>
+          </div>
+        </div>
+        <div class="card-body p-4">
+          <form method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="mb-3">
+              <label class="form-label text-muted small fw-bold text-uppercase">Medicine Name</label>
+              <input class="form-control bg-light border-0"
+                     name="medicine"
+                     placeholder="e.g. Paracetamol"
+                     required>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label text-muted small fw-bold text-uppercase">Dosage</label>
+              <input class="form-control bg-light border-0"
+                     name="dosage"
+                     placeholder="e.g. 1 tablet"
+                     required>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label text-muted small fw-bold text-uppercase">Reminder Time</label>
+              <input type="time"
+                     class="form-control bg-light border-0"
+                     name="time"
+                     required>
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label text-muted small fw-bold text-uppercase">Frequency</label>
+              <select class="form-select bg-light border-0" name="frequency">
+                <option>Once a day</option>
+                <option>Twice a day</option>
+                <option>Thrice a day</option>
+              </select>
+            </div>
+
+            <button class="btn btn-primary w-100 py-2 shadow-sm fw-bold">
+              <i class="bi bi-bell-fill me-2"></i>
+              Set Reminder
+            </button>
+
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= REMINDERS LIST ================= -->
+    <div class="col-lg-8">
+      <div class="card glass border-0 h-100">
+        <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0 d-flex justify-content-between align-items-center">
+          <h5 class="fw-bold text-dark mb-0">
+            <i class="bi bi-list-check text-primary me-2"></i> Your Schedule
+          </h5>
+          <span class="badge bg-light text-muted border">{{ reminders|length }} Reminders</span>
+        </div>
+        
+        <div class="card-body p-4">
+          {% if reminders %}
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th class="ps-3">Medicine</th>
+                    <th>Dosage</th>
+                    <th>Time</th>
+                    <th>Frequency</th>
+                    <th>Status</th>
+                    <th class="text-end pe-3">Actions</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {% for r in reminders %}
+                  <tr>
+                    <td class="ps-3">
+                      <div class="d-flex align-items-center">
+                        <div class="avatar-sm bg-primary-subtle text-primary rounded-circle me-3 d-flex align-items-center justify-content-center">
+                          <i class="bi bi-capsule"></i>
+                        </div>
+                        <div>
+                          <span class="fw-semibold text-dark">{{ r.medicine_name }}</span>
+                          <div class="small text-muted">
+                            <i class="bi bi-person-fill"></i> By {{ r.created_by|capitalize }}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>{{ r.dosage }}</td>
+                    <td>
+                      <div class="d-flex align-items-center text-primary fw-bold">
+                        <i class="bi bi-clock me-2"></i>
+                        {{ r.reminder_time.strftime('%H:%M') }}
+                      </div>
+                    </td>
+                    <td><span class="text-muted small">{{ r.frequency }}</span></td>
+                    <td>
+                      <span class="badge rounded-pill 
+                        {% if r.status == 'taken' %}bg-success text-white
+                        {% elif r.status == 'missed' %}bg-danger text-white
+                        {% else %}bg-warning text-dark{% endif %}">
+                        {{ r.status|capitalize }}
+                      </span>
+                    </td>
+                    <td class="text-end pe-3">
+                      <form method="post" class="d-inline-flex gap-2">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="reminder_id" value="{{ r.id }}">
+                        
+                        {% if r.status == 'pending' %}
+                        <button type="submit" name="action" value="taken" class="btn btn-sm btn-success rounded-pill px-3" title="Mark as Taken">
+                          <i class="bi bi-check-lg"></i> <span class="d-none d-md-inline">Taken</span>
+                        </button>
+                        {% endif %}
+                        
+                        <button type="submit" name="action" value="delete" class="btn btn-sm btn-outline-danger rounded-circle" title="Delete" onclick="return confirm('Delete this reminder?')">
+                          <i class="bi bi-trash"></i>
+                        </button>
+                      </form>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <div class="text-center py-5">
+              <div class="mb-3 opacity-25">
+                <i class="bi bi-calendar-check display-1"></i>
+              </div>
+              <h5 class="text-muted">No reminders set</h5>
+              <p class="text-muted small">Add your first medicine reminder using the form.</p>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Request notification permission
+    if ("Notification" in window && Notification.permission !== "granted" && Notification.permission !== "denied") {
+      Notification.requestPermission();
+    }
+
+    const reminders = [
+      {% for r in reminders %}
+      {% if r.status == 'pending' %}
+      {
+        id: {{ r.id }},
+        medicine: "{{ r.medicine_name }}",
+        time: "{{ r.reminder_time.strftime('%H:%M') }}",
+        dosage: "{{ r.dosage }}"
+      },
+      {% endif %}
+      {% endfor %}
+    ];
+
+    reminders.forEach(r => {
+      const [hours, minutes] = r.time.split(':');
+      const now = new Date();
+      const reminderTime = new Date();
+      reminderTime.setHours(hours, minutes, 0, 0);
+
+      // Only set notification if time is in the future
+      if (reminderTime > now) {
+        const diff = reminderTime - now;
+        // Max delay for setTimeout is ~24 days, so this is safe for daily reminders
+        setTimeout(() => {
+          if (Notification.permission === "granted") {
+            new Notification("Medicine Reminder", {
+              body: `Time to take ${r.medicine} (${r.dosage})`,
+              icon: "{{ url_for('static', filename='img/logo.png') }}"
+            });
+          } else {
+            // Fallback
+            alert(`Reminder: Time to take ${r.medicine} (${r.dosage})`);
+          }
+        }, diff);
+      }
+    });
+  });
+</script>
+
+{% endblock %}
